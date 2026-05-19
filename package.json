@@ -17,6 +17,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^6.1.0",
     "axios": "^1.7.9",
+    "better-auth": "^1.6.11",
     "mobx": "^6.13.5",
     "mobx-react-lite": "^4.1.0",
     "next": "^16.2.6",
@@ -24,7 +25,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "suncalc": "^1.9.0",
-    "zod": "^3.24.1"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
