@@ -41,9 +41,12 @@ class WeatherStore {
         API_ENDPOINTS.WEATHER.CURRENT,
         { params: { city } }
       );
-      this.currentWeather = data.weather;
-      this.recommendations = data.recommendations;
-      this.currentCity = data.weather.city;
+      const { weather, recommendations } = data;
+      this.currentWeather = weather;
+      this.recommendations = recommendations;
+      this.currentCity = weather.city;
+      // load forecast in parallel (non-blocking)
+      this.fetchForecast(weather.city);
     } catch {
       this.error = "Failed to fetch weather data. Please try again.";
     } finally {
