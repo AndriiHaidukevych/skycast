@@ -145,6 +145,6 @@ pnpm format     # Prettier
 
 - **Better Auth** with Google OAuth
 - Protected routes: `/favorites` (middleware redirects to `/login`)
-- Server-side session: `auth.api.getSession()` in Route Handlers
+- Server-side session: `auth.api.getSession({ headers: await headers() })` in page/layout Server Components
 - Client-side session: `useSession()` from `@/src/lib/auth-client`
-- Never check auth in `src/screens/` — use middleware or Route Handler
+- Protected pages redirect via `redirect("/login")` directly in the page Server Component — no middleware
