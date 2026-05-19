@@ -37,10 +37,9 @@ class WeatherStore {
     this.isLoading = true;
     this.error = null;
     try {
-      const { data } = yield apiClient.get<CurrentWeatherResponse>(
-        API_ENDPOINTS.WEATHER.CURRENT,
-        { params: { city } }
-      );
+      const { data } = yield apiClient.get<CurrentWeatherResponse>(API_ENDPOINTS.WEATHER.CURRENT, {
+        params: { city },
+      });
       const { weather, recommendations } = data;
       this.currentWeather = weather;
       this.recommendations = recommendations;
@@ -56,10 +55,9 @@ class WeatherStore {
 
   *fetchForecast(city: string) {
     try {
-      const { data } = yield apiClient.get<ForecastResponse>(
-        API_ENDPOINTS.WEATHER.FORECAST,
-        { params: { city } }
-      );
+      const { data } = yield apiClient.get<ForecastResponse>(API_ENDPOINTS.WEATHER.FORECAST, {
+        params: { city },
+      });
       this.forecast = data.forecast;
     } catch {
       // forecast is non-critical, fail silently

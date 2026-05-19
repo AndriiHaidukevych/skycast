@@ -3,8 +3,23 @@ import type { Recommendations } from "@/src/types/weather";
 import type { RecommendationInput } from "./recommendations.types";
 
 const { outfit: OUTFIT, activity: ACTIVITY, health: HEALTH } = RECOMMENDATION_MESSAGES;
-const { HEAVY_COAT, WARM_COAT, LAYER_UP, LIGHT_LAYERS, LIGHT_CLOTHING, SUFFIX_UMBRELLA, SUFFIX_WIND } = OUTFIT;
-const { STAY_INDOORS, INDOOR_ACTIVITIES, LIGHT_INDOOR, MORNING_EVENING, OUTDOOR_JOGGING, CASUAL_WALK } = ACTIVITY;
+const {
+  HEAVY_COAT,
+  WARM_COAT,
+  LAYER_UP,
+  LIGHT_LAYERS,
+  LIGHT_CLOTHING,
+  SUFFIX_UMBRELLA,
+  SUFFIX_WIND,
+} = OUTFIT;
+const {
+  STAY_INDOORS,
+  INDOOR_ACTIVITIES,
+  LIGHT_INDOOR,
+  MORNING_EVENING,
+  OUTDOOR_JOGGING,
+  CASUAL_WALK,
+} = ACTIVITY;
 const { HIGH_UV, APPLY_SUNSCREEN, STAY_HYDRATED, POLLEN_ALERT, AIR_QUALITY_GOOD } = HEALTH;
 
 function isRainy(code: number): boolean {
@@ -59,7 +74,13 @@ function getHealth(uvIndex: number, humidity: number, conditionCode: number) {
   return AIR_QUALITY_GOOD;
 }
 
-export function getRecommendations({ temp, conditionCode, windSpeed, uvIndex, humidity }: RecommendationInput): Recommendations {
+export function getRecommendations({
+  temp,
+  conditionCode,
+  windSpeed,
+  uvIndex,
+  humidity,
+}: RecommendationInput): Recommendations {
   return {
     outfit: getOutfit(temp, conditionCode, windSpeed),
     activity: getActivity(temp, conditionCode, windSpeed),

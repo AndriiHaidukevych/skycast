@@ -16,7 +16,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const raw = await fetchForecast(city);
-    const { city: { timezone } } = raw;
+    const {
+      city: { timezone },
+    } = raw;
     const forecast = groupForecastByDay(raw, timezone);
     const response: ForecastResponse = { forecast };
     return NextResponse.json(response);

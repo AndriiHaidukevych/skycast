@@ -12,13 +12,14 @@ Model      →  src/modules/
 
 ### Layer Rules
 
-| Layer | Location | Rules |
-|-------|----------|-------|
-| **View** | `src/screens/`, `src/ui/` | Only reads from ViewModel (Store). No direct module calls. No API calls. |
-| **ViewModel** | `src/stores/` | MobX `makeAutoObservable`. Calls Model functions. Exposes observable state and actions to View. |
-| **Model** | `src/modules/` | Pure business logic. No UI imports. No MobX. Returns typed data. |
+| Layer         | Location                  | Rules                                                                                           |
+| ------------- | ------------------------- | ----------------------------------------------------------------------------------------------- |
+| **View**      | `src/screens/`, `src/ui/` | Only reads from ViewModel (Store). No direct module calls. No API calls.                        |
+| **ViewModel** | `src/stores/`             | MobX `makeAutoObservable`. Calls Model functions. Exposes observable state and actions to View. |
+| **Model**     | `src/modules/`            | Pure business logic. No UI imports. No MobX. Returns typed data.                                |
 
 **Data flow — one direction only:**
+
 ```
 OpenWeather API → Route Handler → Model (modules/) → ViewModel (stores/) → View (screens/)
 ```
@@ -70,17 +71,20 @@ prisma/
 ## Coding Rules
 
 ### Files
+
 - Max **200 lines** per file — decompose into `components/` subfolder
 - **kebab-case** for all file names (`weather-card.tsx`, `solar.types.ts`)
 - **Barrel exports** — every folder has `index.ts`
 
 ### Naming
+
 - Screens: `HomeScreen`, `DetailsScreen` (PascalCase + Screen suffix)
 - Stores: `WeatherStore` (PascalCase + Store suffix)
 - Modules: plain exports (`getWeather`, `getSolarData`)
 - UI components: `GlassCard`, `SearchBar` (PascalCase)
 
 ### Imports
+
 ```typescript
 // ✅ Screen imports from Store
 import { useWeatherStore } from "@/src/stores/weather-store";
@@ -93,7 +97,9 @@ import { getCurrentWeather } from "@/src/modules/weather"; // in a screen = WRON
 ```
 
 ### Module structure
+
 Each module in `src/modules/<domain>/` follows:
+
 ```
 weather/
 ├── index.ts          # Public API (exports only)
@@ -103,6 +109,7 @@ weather/
 ```
 
 ### Store structure (ViewModel)
+
 ```typescript
 // src/stores/weather-store/index.ts
 class WeatherStore {
@@ -119,11 +126,13 @@ class WeatherStore {
 ```
 
 ### Route handlers
+
 - All calls to external APIs (OpenWeather) happen **server-side** in `app/api/`
 - Never expose API keys to client
 - Route handlers call module functions, return typed JSON
 
 ### Styling
+
 - Use Tailwind classes only — never hardcode hex colors in JSX
 - All design tokens come from `tailwind.config.ts` (sourced from `DESIGN.md`)
 - Glassmorphism helpers: `glass-card`, `glass-card-heavy`, `glass-card-sm` (defined in `globals.css`)

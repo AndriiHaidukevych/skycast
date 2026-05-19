@@ -17,11 +17,20 @@ export async function GET(request: NextRequest) {
 
   try {
     const raw = await fetchCurrentWeather(city);
-    const { coord: { lat, lon }, timezone } = raw;
+    const {
+      coord: { lat, lon },
+      timezone,
+    } = raw;
     const solar = getSolarData(lat, lon, new Date(), timezone);
     const weather = mapToWeatherData(raw, solar);
     const { temp, conditionCode, windSpeed, uvIndex, humidity } = weather;
-    const recommendations = getRecommendations({ temp, conditionCode, windSpeed, uvIndex, humidity });
+    const recommendations = getRecommendations({
+      temp,
+      conditionCode,
+      windSpeed,
+      uvIndex,
+      humidity,
+    });
     const response: CurrentWeatherResponse = { weather, recommendations };
     return NextResponse.json(response);
   } catch (err) {
