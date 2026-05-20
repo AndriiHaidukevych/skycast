@@ -24,8 +24,7 @@ export const FavoritesScreen = observer(function FavoritesScreen() {
     const matchesSearch =
       f.city_name.toLowerCase().includes(search.toLowerCase()) ||
       f.country.toLowerCase().includes(search.toLowerCase());
-    const matchesRegion =
-      activeRegion === "ALL" || getRegion(f.country) === activeRegion;
+    const matchesRegion = activeRegion === "ALL" || getRegion(f.country) === activeRegion;
     return matchesSearch && matchesRegion;
   });
 
@@ -72,9 +71,7 @@ export const FavoritesScreen = observer(function FavoritesScreen() {
           <span className="material-symbols-outlined text-on-surface-variant text-[64px]">
             star_border
           </span>
-          <p className="font-headline-md text-headline-md text-on-surface-variant">
-            {noFavorites}
-          </p>
+          <p className="font-headline-md text-headline-md text-on-surface-variant">{noFavorites}</p>
           <p className="font-body-md text-on-surface-variant/60">{noFavoritesHint}</p>
         </div>
       )}

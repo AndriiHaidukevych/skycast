@@ -7,6 +7,7 @@ export const API_ENDPOINTS = {
     LIST: "/api/favorites",
     DELETE: (id: string) => `/api/favorites/${id}`,
   },
+  GEOCODING: "/api/geocoding",
 } as const;
 
 export const OPENWEATHER_BASE_URL = "https://api.openweathermap.org";

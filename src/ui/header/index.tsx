@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "@/src/lib/auth-client";
+import { SearchBar } from "@/src/ui/search-bar";
 
 const NAV_LINKS = [
   { label: "DASHBOARD", href: "/" },
@@ -14,7 +15,6 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
-  const [searchValue, setSearchValue] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -27,13 +27,6 @@ export function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  function handleSearch(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!searchValue.trim()) return;
-    router.push(`/details/${encodeURIComponent(searchValue.trim())}`);
-    setSearchValue("");
-  }
 
   async function handleSignOut() {
     setDropdownOpen(false);
@@ -53,21 +46,10 @@ export function Header() {
         SkyCast
       </Link>
 
-      {/* Search bar */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-md hidden md:block">
-        <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">
-            search
-          </span>
-          <input
-            type="text"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            placeholder="Search cities..."
-            className="w-full bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary/50 transition-all"
-          />
-        </div>
-      </form>
+      {/* Search bar with autocomplete */}
+      <div className="flex-1 max-w-md hidden md:block">
+        <SearchBar placeholder="Search cities..." />
+      </div>
 
       {/* Spacer */}
       <div className="flex-1" />
@@ -111,7 +93,7 @@ export function Header() {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden">
+            <div className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden z-50">
               <div className="px-4 py-3 border-b border-white/10">
                 <p className="font-label-caps text-label-caps text-on-surface-variant">
                   Signed in as
