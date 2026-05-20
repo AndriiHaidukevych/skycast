@@ -51,7 +51,8 @@ export function DailyInsight({ favorites }: Props) {
                 <>
                   {" "}
                   <strong>{worst.city_name}</strong> {insightIsExperiencing}{" "}
-                  {worst.weather?.description}{insightLessIdeal}
+                  {worst.weather?.description}
+                  {insightLessIdeal}
                 </>
               )}
             </>

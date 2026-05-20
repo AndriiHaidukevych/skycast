@@ -33,9 +33,7 @@ export const DetailsScreen = observer(function DetailsScreen({ city }: Props) {
   function handleToggleFavorite() {
     if (!currentWeather) return;
     if (isFav) {
-      const fav = store.favorites.find(
-        (f) => f.city_name.toLowerCase() === city.toLowerCase()
-      );
+      const fav = store.favorites.find((f) => f.city_name.toLowerCase() === city.toLowerCase());
       if (fav) store.removeFavorite(fav.id);
     } else {
       const { city: cityName, country, lat, lon, timezone } = currentWeather;

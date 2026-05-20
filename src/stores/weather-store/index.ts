@@ -49,9 +49,7 @@ class WeatherStore {
   }
 
   isFavorite(cityName: string): boolean {
-    return this.favorites.some(
-      (f) => f.city_name.toLowerCase() === cityName.toLowerCase()
-    );
+    return this.favorites.some((f) => f.city_name.toLowerCase() === cityName.toLowerCase());
   }
 
   *fetchWeather(city: string) {
