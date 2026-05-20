@@ -5,7 +5,13 @@ interface Props {
   favorites: FavoriteCity[];
 }
 
-const { dailyInsightBadge, dailyInsightTitle } = FAVORITES_MESSAGES;
+const {
+  dailyInsightBadge,
+  dailyInsightTitle,
+  insightNoCities,
+  insightIsExperiencing,
+  insightLessIdeal,
+} = FAVORITES_MESSAGES;
 
 function getBestCity(favorites: FavoriteCity[]): FavoriteCity | null {
   const withWeather = favorites.filter((f) => f.weather);
@@ -44,13 +50,13 @@ export function DailyInsight({ favorites }: Props) {
               {worst && (
                 <>
                   {" "}
-                  <strong>{worst.city_name}</strong> is experiencing{" "}
-                  {worst.weather?.description}, making it less ideal for outdoor activities today.
+                  <strong>{worst.city_name}</strong> {insightIsExperiencing}{" "}
+                  {worst.weather?.description}{insightLessIdeal}
                 </>
               )}
             </>
           ) : (
-            "Add more cities to get personalized travel condition insights."
+            insightNoCities
           )}
         </p>
       </div>

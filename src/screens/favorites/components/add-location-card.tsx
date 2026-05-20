@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FAVORITES_MESSAGES } from "../favorites.constants";
 
-const { addLocation, addLocationSub, addSearchPlaceholder } = FAVORITES_MESSAGES;
+const { addLocation, addLocationSub, addSearchPlaceholder, addSearchButton, addCancelButton } =
+  FAVORITES_MESSAGES;
 
 export function AddLocationCard() {
   const router = useRouter();
@@ -34,14 +35,14 @@ export function AddLocationCard() {
               type="submit"
               className="flex-1 bg-primary text-on-primary font-label-caps text-label-caps py-2 rounded-full hover:bg-primary/90 transition-all"
             >
-              Search
+              {addSearchButton}
             </button>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               className="px-4 glass-card font-label-caps text-label-caps text-on-surface-variant rounded-full hover:bg-white/10 transition-all"
             >
-              Cancel
+              {addCancelButton}
             </button>
           </div>
         </form>

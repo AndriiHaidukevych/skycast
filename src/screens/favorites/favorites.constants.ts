@@ -13,6 +13,11 @@ export const FAVORITES_MESSAGES = {
   noFavorites: "No favorite cities yet",
   noFavoritesHint: "Add cities from the Details page to start tracking them here.",
   signInRequired: "Sign in to manage favorites",
+  addSearchButton: "Search",
+  addCancelButton: "Cancel",
+  insightNoCities: "Add more cities to get personalized travel condition insights.",
+  insightIsExperiencing: "is experiencing",
+  insightLessIdeal: ", making it less ideal for outdoor activities today.",
 } as const;
 
 export const REGION_FILTERS = [

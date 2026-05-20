@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useWeatherStore } from "@/src/stores/provider";
 import type { FavoriteCity } from "@/src/types/favorites";
 import { getLocalTime } from "../favorites.constants";
+import { getConditionIcon } from "@/src/lib/weather-icons";
 
 interface Props {
   city: FavoriteCity;
@@ -49,17 +50,7 @@ export function CityCard({ city }: Props) {
             </span>
             <div className="flex flex-col items-end">
               <span className="material-symbols-outlined text-primary text-5xl mb-1">
-                {weather.conditionCode === 800
-                  ? "sunny"
-                  : weather.conditionCode > 800
-                    ? "cloud"
-                    : weather.conditionCode >= 600
-                      ? "ac_unit"
-                      : weather.conditionCode >= 500
-                        ? "rainy"
-                        : weather.conditionCode >= 200
-                          ? "thunderstorm"
-                          : "cloud"}
+                {getConditionIcon(weather.conditionCode)}
               </span>
               <span className="font-label-caps text-label-caps text-on-surface-variant capitalize">
                 {weather.description}
