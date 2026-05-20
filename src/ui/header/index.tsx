@@ -67,7 +67,7 @@ export function Header() {
               href={href}
               className={`font-label-caps text-label-caps px-4 py-2 rounded-full transition-colors whitespace-nowrap ${
                 isActive
-                  ? "text-primary border-b-2 border-primary"
+                  ? "text-primary bg-primary/10 border border-primary/30"
                   : "text-on-surface-variant hover:bg-white/5"
               }`}
             >
@@ -96,7 +96,7 @@ export function Header() {
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden z-50">
+            <div className="absolute right-0 top-full mt-4 w-64 bg-surface-container-high border border-white/10 rounded-xl overflow-hidden z-50 shadow-xl">
               <div className="px-4 py-3 border-b border-white/10">
                 <p className="font-label-caps text-label-caps text-on-surface-variant">
                   {signedInAs}
