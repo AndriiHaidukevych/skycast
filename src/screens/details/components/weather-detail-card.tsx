@@ -14,7 +14,6 @@ export function WeatherDetailCard({ weather, isFav, onToggleFavorite }: Props) {
     city,
     country,
     description,
-    conditionCode,
     temp,
     feelsLike,
     windSpeed: windSpeedMs,
@@ -25,8 +24,6 @@ export function WeatherDetailCard({ weather, isFav, onToggleFavorite }: Props) {
 
   const dayName = new Date().toLocaleDateString("en-US", { weekday: "long" });
   const monthDay = new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" });
-
-  void conditionCode;
 
   const stats = [
     { label: windSpeed, icon: "air", value: `${Math.round(windSpeedMs * 3.6)} km/h` },

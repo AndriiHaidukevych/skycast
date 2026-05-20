@@ -5,6 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "@/src/lib/auth-client";
 import { SearchBar } from "@/src/ui/search-bar";
+import { HEADER_MESSAGES } from "./header.constants";
+
+const { signedInAs, signOut: signOutLabel, signIn: signInLabel } = HEADER_MESSAGES;
 
 const NAV_LINKS = [
   { label: "DASHBOARD", href: "/" },
@@ -96,7 +99,7 @@ export function Header() {
             <div className="absolute right-0 top-full mt-2 w-48 glass-card rounded-xl overflow-hidden z-50">
               <div className="px-4 py-3 border-b border-white/10">
                 <p className="font-label-caps text-label-caps text-on-surface-variant">
-                  Signed in as
+                  {signedInAs}
                 </p>
                 <p className="font-body-md text-on-surface truncate text-sm mt-0.5">
                   {session.user.email}
@@ -107,7 +110,7 @@ export function Header() {
                 className="w-full flex items-center gap-2 px-4 py-3 font-label-caps text-label-caps text-error hover:bg-white/5 transition-colors text-left"
               >
                 <span className="material-symbols-outlined text-[18px]">logout</span>
-                Sign out
+                {signOutLabel}
               </button>
             </div>
           )}
@@ -118,7 +121,7 @@ export function Header() {
           className="flex items-center gap-2 bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors px-4 py-2 rounded-full font-label-caps text-label-caps text-primary whitespace-nowrap"
         >
           <span className="material-symbols-outlined text-[16px]">account_circle</span>
-          Sign in
+          {signInLabel}
         </Link>
       )}
     </header>

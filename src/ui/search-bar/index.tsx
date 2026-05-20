@@ -26,9 +26,9 @@ export function SearchBar({
   const [isFocused, setIsFocused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { results, isPending, clear } = useCitySearch(query);
+  const { results, isPending, isEmpty, clear } = useCitySearch(query);
 
-  const isOpen = isFocused && query.trim().length >= 2 && (results.length > 0 || isPending);
+  const isOpen = isFocused && query.trim().length >= 2 && (results.length > 0 || isPending || isEmpty);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -77,11 +77,6 @@ export function SearchBar({
       case "Enter":
         if (selectedIndex >= 0 && results[selectedIndex]) {
           handleSelect(results[selectedIndex]);
-        } else if (results[0]) {
-          handleSelect(results[0]);
-        } else if (query.trim()) {
-          setIsFocused(false);
-          router.push(`/details/${encodeURIComponent(query.trim())}`);
         }
         break;
       case "Escape":
@@ -122,6 +117,7 @@ export function SearchBar({
         <SearchResultsDropdown
           results={results}
           isPending={isPending}
+          isEmpty={isEmpty}
           selectedIndex={selectedIndex}
           onSelect={handleSelect}
         />
