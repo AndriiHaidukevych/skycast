@@ -21,12 +21,27 @@ const { loading, notFound, tryAgain } = DETAILS_MESSAGES;
 export const DetailsScreen = observer(function DetailsScreen({ city }: Props) {
   const store = useWeatherStore();
   const { currentWeather, recommendations, isLoading, error, currentCity } = store;
+  const isFav = store.isFavorite(city);
 
   useEffect(() => {
     if (currentCity !== city) {
       store.fetchWeather(city);
     }
+    store.loadFavorites();
   }, [city, currentCity, store]);
+
+  function handleToggleFavorite() {
+    if (!currentWeather) return;
+    if (isFav) {
+      const fav = store.favorites.find(
+        (f) => f.city_name.toLowerCase() === city.toLowerCase()
+      );
+      if (fav) store.removeFavorite(fav.id);
+    } else {
+      const { city: cityName, country, lat, lon, timezone } = currentWeather;
+      store.addFavorite({ city_name: cityName, country, lat, lon, timezone });
+    }
+  }
 
   if (isLoading) {
     return (
@@ -62,7 +77,11 @@ export const DetailsScreen = observer(function DetailsScreen({ city }: Props) {
       <main className="max-w-7xl mx-auto px-container-padding-mobile md:px-container-padding-desktop py-stack-lg space-y-stack-lg">
         {/* Main weather + solar row */}
         <section className="grid grid-cols-1 md:grid-cols-12 gap-stack-md">
-          <WeatherDetailCard weather={currentWeather} />
+          <WeatherDetailCard
+            weather={currentWeather}
+            isFav={isFav}
+            onToggleFavorite={handleToggleFavorite}
+          />
           <SolarCycleCard weather={currentWeather} />
         </section>
 

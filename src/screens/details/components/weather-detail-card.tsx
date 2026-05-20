@@ -3,11 +3,13 @@ import { WEATHER_STAT_LABELS, getUvLabel } from "../details.constants";
 
 interface Props {
   weather: WeatherData;
+  isFav: boolean;
+  onToggleFavorite: () => void;
 }
 
 const { windSpeed, humidity, uvIndex, pressure } = WEATHER_STAT_LABELS;
 
-export function WeatherDetailCard({ weather }: Props) {
+export function WeatherDetailCard({ weather, isFav, onToggleFavorite }: Props) {
   const {
     city,
     country,
@@ -39,9 +41,23 @@ export function WeatherDetailCard({ weather }: Props) {
 
       <div className="flex justify-between items-start z-10">
         <div>
-          <h1 className="font-headline-lg text-headline-lg text-on-surface">
-            {city}, {country}
-          </h1>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="font-headline-lg text-headline-lg text-on-surface">
+              {city}, {country}
+            </h1>
+            <button
+              onClick={onToggleFavorite}
+              title={isFav ? "Remove from favorites" : "Add to favorites"}
+              className="hover:scale-110 transition-transform shrink-0"
+            >
+              <span
+                className={`material-symbols-outlined text-[32px] ${isFav ? "text-secondary" : "text-on-surface-variant/50 hover:text-secondary"} transition-colors`}
+                style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}
+              >
+                star
+              </span>
+            </button>
+          </div>
           <p className="font-body-md text-on-surface-variant capitalize">
             {description} • {dayName}, {monthDay}
           </p>
