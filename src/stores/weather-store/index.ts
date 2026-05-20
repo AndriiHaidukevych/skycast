@@ -37,13 +37,15 @@ class WeatherStore {
     this.isLoading = true;
     this.error = null;
     try {
-      const { data } = yield apiClient.get<CurrentWeatherResponse>(
-        API_ENDPOINTS.WEATHER.CURRENT,
-        { params: { city } }
-      );
-      this.currentWeather = data.weather;
-      this.recommendations = data.recommendations;
-      this.currentCity = data.weather.city;
+      const { data } = yield apiClient.get<CurrentWeatherResponse>(API_ENDPOINTS.WEATHER.CURRENT, {
+        params: { city },
+      });
+      const { weather, recommendations } = data;
+      this.currentWeather = weather;
+      this.recommendations = recommendations;
+      this.currentCity = weather.city;
+      // load forecast in parallel (non-blocking)
+      this.fetchForecast(weather.city);
     } catch {
       this.error = "Failed to fetch weather data. Please try again.";
     } finally {
@@ -53,10 +55,9 @@ class WeatherStore {
 
   *fetchForecast(city: string) {
     try {
-      const { data } = yield apiClient.get<ForecastResponse>(
-        API_ENDPOINTS.WEATHER.FORECAST,
-        { params: { city } }
-      );
+      const { data } = yield apiClient.get<ForecastResponse>(API_ENDPOINTS.WEATHER.FORECAST, {
+        params: { city },
+      });
       this.forecast = data.forecast;
     } catch {
       // forecast is non-critical, fail silently

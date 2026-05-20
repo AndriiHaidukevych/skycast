@@ -8,9 +8,7 @@ const WeatherStoreContext = createContext<WeatherStore>(weatherStore);
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   return (
-    <WeatherStoreContext.Provider value={weatherStore}>
-      {children}
-    </WeatherStoreContext.Provider>
+    <WeatherStoreContext.Provider value={weatherStore}>{children}</WeatherStoreContext.Provider>
   );
 }
 

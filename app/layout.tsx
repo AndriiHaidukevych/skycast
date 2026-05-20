@@ -34,7 +34,9 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         />
       </head>
-      <body className={`${inter.variable} ${geist.variable} antialiased flex flex-col min-h-screen`}>
+      <body
+        className={`${inter.variable} ${geist.variable} antialiased flex flex-col min-h-screen`}
+      >
         <StoreProvider>
           <Header />
           <main className="flex-1">{children}</main>

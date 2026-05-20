@@ -6,10 +6,7 @@ import { API_ERRORS } from "@/src/lib/messages";
 
 const { UNAUTHORIZED, NOT_FOUND } = API_ERRORS;
 
-export async function DELETE(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return NextResponse.json({ error: UNAUTHORIZED }, { status: 401 });
 

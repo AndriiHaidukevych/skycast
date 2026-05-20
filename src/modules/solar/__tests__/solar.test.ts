@@ -11,7 +11,11 @@ const BST_OFFSET = 3600;
 describe("getSolarData", () => {
   it("returns sunrise before sunset", () => {
     const result = getSolarData(LONDON_LAT, LONDON_LON, SUMMER_SOLSTICE, BST_OFFSET);
-    const [sunriseH, sunriseMin] = result.sunrise.replace(/[AP]M/, "").trim().split(":").map(Number);
+    const [sunriseH, sunriseMin] = result.sunrise
+      .replace(/[AP]M/, "")
+      .trim()
+      .split(":")
+      .map(Number);
     const [sunsetH, sunsetMin] = result.sunset.replace(/[AP]M/, "").trim().split(":").map(Number);
 
     // On summer solstice sunrise is AM, sunset is PM

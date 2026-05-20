@@ -87,9 +87,9 @@ prisma/
 
 ## Environment Variables
 
-| Variable              | Description                                          |
-| --------------------- | ---------------------------------------------------- |
-| `OPENWEATHER_API_KEY` | API key from openweathermap.org                      |
-| `DATABASE_URL`        | PostgreSQL connection string                         |
-| `BETTER_AUTH_SECRET`  | Random secret (`openssl rand -base64 32`)            |
-| `BETTER_AUTH_URL`     | App base URL (e.g. `http://localhost:3000`)          |
+| Variable              | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `OPENWEATHER_API_KEY` | API key from openweathermap.org             |
+| `DATABASE_URL`        | PostgreSQL connection string                |
+| `BETTER_AUTH_SECRET`  | Random secret (`openssl rand -base64 32`)   |
+| `BETTER_AUTH_URL`     | App base URL (e.g. `http://localhost:3000`) |

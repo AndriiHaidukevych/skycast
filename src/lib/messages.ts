@@ -65,7 +65,8 @@ export const RECOMMENDATION_MESSAGES = {
     },
     CASUAL_WALK: {
       title: "Casual Outdoor Walk",
-      description: "Conditions are fair. A relaxed walk or light outdoor activity suits the weather.",
+      description:
+        "Conditions are fair. A relaxed walk or light outdoor activity suits the weather.",
       icon: "directions_walk",
     },
   },
