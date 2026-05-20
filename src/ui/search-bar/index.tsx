@@ -32,7 +32,8 @@ export function SearchBar({
   const { history, saveSearch } = useSearchHistory();
 
   const showHistory = isFocused && query.trim().length < 2 && history.length > 0;
-  const showResults = isFocused && query.trim().length >= 2 && (results.length > 0 || isPending || isEmpty);
+  const showResults =
+    isFocused && query.trim().length >= 2 && (results.length > 0 || isPending || isEmpty);
   const isOpen = showHistory || showResults;
 
   useEffect(() => {
@@ -126,9 +127,7 @@ export function SearchBar({
 
       {isOpen && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-high border border-white/10 rounded-xl overflow-hidden z-50 shadow-xl">
-          {showHistory && (
-            <RecentSearches items={history} onSelect={handleHistorySelect} />
-          )}
+          {showHistory && <RecentSearches items={history} onSelect={handleHistorySelect} />}
           {showResults && (
             <SearchResultsDropdown
               results={results}

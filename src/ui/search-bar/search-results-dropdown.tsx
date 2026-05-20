@@ -13,12 +13,15 @@ function formatLocation({ name, state, country }: GeocodingResult): string {
   return [name, state, country].filter(Boolean).join(", ");
 }
 
-export function SearchResultsDropdown({ results, isPending, isEmpty, selectedIndex, onSelect }: Props) {
+export function SearchResultsDropdown({
+  results,
+  isPending,
+  isEmpty,
+  selectedIndex,
+  onSelect,
+}: Props) {
   return (
-    <ul
-      role="listbox"
-      className="w-full"
-    >
+    <ul role="listbox" className="w-full">
       {isPending && results.length === 0 && (
         <li className="px-4 py-3 font-body-md text-on-surface-variant">
           {SEARCH_BAR_MESSAGES.searching}
