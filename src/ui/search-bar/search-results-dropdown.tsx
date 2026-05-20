@@ -17,7 +17,7 @@ export function SearchResultsDropdown({ results, isPending, isEmpty, selectedInd
   return (
     <ul
       role="listbox"
-      className="absolute top-full left-0 right-0 mt-2 glass-card rounded-xl overflow-hidden z-50"
+      className="w-full"
     >
       {isPending && results.length === 0 && (
         <li className="px-4 py-3 font-body-md text-on-surface-variant">
