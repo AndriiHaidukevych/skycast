@@ -64,7 +64,7 @@ export function CurrentWeatherCard({ weather, recommendations }: Props) {
         </div>
         <Link
           href={`/details/${encodeURIComponent(city)}`}
-          className="font-label-caps text-label-caps text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+          className="flex items-center gap-2 bg-primary/10 border border-primary/30 hover:bg-primary/20 active:scale-95 transition-all px-4 py-2 rounded-full font-label-caps text-label-caps text-primary whitespace-nowrap"
         >
           {viewFullDetails}
           <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
