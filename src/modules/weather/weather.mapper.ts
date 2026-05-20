@@ -1,6 +1,7 @@
 import type { WeatherData } from "@/src/types/weather";
 import type { OpenWeatherCurrent } from "./validation";
 import type { SolarResult } from "@/src/modules/solar/solar.types";
+import { calcDewPoint } from "./weather.utils";
 
 export function mapToWeatherData(raw: OpenWeatherCurrent, solar: SolarResult): WeatherData {
   const { name, sys, coord, main, wind, clouds, visibility, timezone } = raw;
@@ -24,7 +25,7 @@ export function mapToWeatherData(raw: OpenWeatherCurrent, solar: SolarResult): W
     windSpeed: wind.speed,
     visibility: Math.round(visibility / 1000),
     cloudCover: clouds.all,
-    dewPoint: 0,
+    dewPoint: calcDewPoint(main.temp, main.humidity),
     uvIndex: 0,
     precipitationChance: 0,
     sunrise,

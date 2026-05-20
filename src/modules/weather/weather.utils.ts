@@ -1,6 +1,14 @@
 import type { ForecastDay } from "@/src/types/weather";
 import type { OpenWeatherForecast } from "./validation";
 
+// Magnus formula for dew point approximation
+export function calcDewPoint(temp: number, humidity: number): number {
+  const a = 17.62;
+  const b = 243.12;
+  const alpha = (a * temp) / (b + temp) + Math.log(humidity / 100);
+  return Math.round((b * alpha) / (a - alpha));
+}
+
 const SLOT_HOURS = { morning: 9, afternoon: 14, evening: 20 };
 
 function closestSlot(items: OpenWeatherForecast["list"], targetHour: number) {
