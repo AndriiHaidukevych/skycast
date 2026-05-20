@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { fetchCurrentWeather, mapToWeatherData, WeatherApiError } from "@/src/modules/weather";
-import { getSolarData } from "@/src/modules/solar";
-import { getRecommendations } from "@/src/modules/recommendations";
+import { getCachedCurrentWeather, getCacheHeaders, WeatherApiError } from "@/src/lib/weather-cache";
 import { API_ERRORS } from "@/src/lib/messages";
-import type { CurrentWeatherResponse } from "@/src/types/weather";
 
 const { CITY_REQUIRED, INTERNAL_ERROR } = API_ERRORS;
 
@@ -16,23 +13,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const raw = await fetchCurrentWeather(city);
-    const {
-      coord: { lat, lon },
-      timezone,
-    } = raw;
-    const solar = getSolarData(lat, lon, new Date(), timezone);
-    const weather = mapToWeatherData(raw, solar);
-    const { temp, conditionCode, windSpeed, uvIndex, humidity } = weather;
-    const recommendations = getRecommendations({
-      temp,
-      conditionCode,
-      windSpeed,
-      uvIndex,
-      humidity,
-    });
-    const response: CurrentWeatherResponse = { weather, recommendations };
-    return NextResponse.json(response);
+    const { _fetchedAt, ...data } = await getCachedCurrentWeather(city);
+    return NextResponse.json(data, { headers: getCacheHeaders(_fetchedAt) });
   } catch (err) {
     if (err instanceof WeatherApiError) {
       return NextResponse.json({ error: err.message }, { status: err.status ?? 500 });
