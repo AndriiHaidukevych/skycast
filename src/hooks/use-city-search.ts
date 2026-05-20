@@ -12,9 +12,6 @@ export function useCitySearch(query: string) {
   const debouncedQuery = useDebounce(trimmed, DEBOUNCE_MS);
   const [results, setResults] = useState<GeocodingResult[]>([]);
 
-  // isPending: user typed something but debounce hasn't fired yet
-  const isPending = trimmed !== debouncedQuery && trimmed.length >= MIN_QUERY_LENGTH;
-
   useEffect(() => {
     if (debouncedQuery.length < MIN_QUERY_LENGTH) return;
 
@@ -36,11 +33,14 @@ export function useCitySearch(query: string) {
     };
   }, [debouncedQuery]);
 
-  const displayResults = debouncedQuery.length >= MIN_QUERY_LENGTH ? results : [];
+  const isActive = debouncedQuery.length >= MIN_QUERY_LENGTH;
+  const displayResults = isActive ? results : [];
+  const isPending = trimmed !== debouncedQuery && trimmed.length >= MIN_QUERY_LENGTH;
+  const isEmpty = isActive && !isPending && results.length === 0;
 
   function clear() {
     setResults([]);
   }
 
-  return { results: displayResults, isPending, clear };
+  return { results: displayResults, isPending, isEmpty, clear };
 }

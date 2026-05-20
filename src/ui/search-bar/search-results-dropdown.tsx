@@ -4,6 +4,7 @@ import { SEARCH_BAR_MESSAGES } from "./search-bar.constants";
 interface Props {
   results: GeocodingResult[];
   isPending: boolean;
+  isEmpty: boolean;
   selectedIndex: number;
   onSelect: (city: GeocodingResult) => void;
 }
@@ -12,7 +13,7 @@ function formatLocation({ name, state, country }: GeocodingResult): string {
   return [name, state, country].filter(Boolean).join(", ");
 }
 
-export function SearchResultsDropdown({ results, isPending, selectedIndex, onSelect }: Props) {
+export function SearchResultsDropdown({ results, isPending, isEmpty, selectedIndex, onSelect }: Props) {
   return (
     <ul
       role="listbox"
@@ -21,6 +22,11 @@ export function SearchResultsDropdown({ results, isPending, selectedIndex, onSel
       {isPending && results.length === 0 && (
         <li className="px-4 py-3 font-body-md text-on-surface-variant">
           {SEARCH_BAR_MESSAGES.searching}
+        </li>
+      )}
+      {isEmpty && (
+        <li className="px-4 py-3 font-body-md text-on-surface-variant">
+          {SEARCH_BAR_MESSAGES.notFound}
         </li>
       )}
       {results.map((city, i) => (
