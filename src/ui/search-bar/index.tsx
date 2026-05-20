@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useCitySearch } from "@/src/hooks/use-city-search";
+import { SearchResultsDropdown } from "./search-results-dropdown";
+import { SEARCH_BAR_MESSAGES } from "./search-bar.constants";
 import type { GeocodingResult } from "@/src/types/geocoding";
 
 interface Props {
@@ -12,12 +14,8 @@ interface Props {
   onSelect?: (city: GeocodingResult) => void;
 }
 
-function formatLocation({ name, state, country }: GeocodingResult): string {
-  return [name, state, country].filter(Boolean).join(", ");
-}
-
 export function SearchBar({
-  placeholder = "Search cities...",
+  placeholder = SEARCH_BAR_MESSAGES.defaultPlaceholder,
   className,
   inputClassName,
   onSelect,
@@ -30,7 +28,6 @@ export function SearchBar({
 
   const { results, isPending, clear } = useCitySearch(query);
 
-  // Computed — no setState in effects for this
   const isOpen = isFocused && query.trim().length >= 2 && (results.length > 0 || isPending);
 
   useEffect(() => {
@@ -60,23 +57,24 @@ export function SearchBar({
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setQuery(e.target.value);
-    setSelectedIndex(-1); // reset selection on every keystroke
+    setSelectedIndex(-1);
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (!isOpen) return;
 
+    if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+      e.preventDefault();
+    }
+
     switch (e.key) {
       case "ArrowDown":
-        e.preventDefault();
         setSelectedIndex((prev) => Math.min(prev + 1, results.length - 1));
         break;
       case "ArrowUp":
-        e.preventDefault();
         setSelectedIndex((prev) => Math.max(prev - 1, -1));
         break;
       case "Enter":
-        e.preventDefault();
         if (selectedIndex >= 0 && results[selectedIndex]) {
           handleSelect(results[selectedIndex]);
         } else if (results[0]) {
@@ -121,27 +119,12 @@ export function SearchBar({
       </div>
 
       {isOpen && (
-        <ul role="listbox" className="absolute top-full left-0 right-0 mt-2 glass-card rounded-xl overflow-hidden z-50">
-          {isPending && results.length === 0 && (
-            <li className="px-4 py-3 font-body-md text-on-surface-variant">Searching…</li>
-          )}
-          {results.map((city, i) => (
-            <li key={`${city.lat}-${city.lon}`} role="option" aria-selected={i === selectedIndex}>
-              <button
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => handleSelect(city)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors ${
-                  i === selectedIndex ? "bg-white/10" : "hover:bg-white/5"
-                } ${i > 0 ? "border-t border-white/5" : ""}`}
-              >
-                <span className="material-symbols-outlined text-primary text-[18px] shrink-0">
-                  location_on
-                </span>
-                <span className="font-body-md text-on-surface">{formatLocation(city)}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        <SearchResultsDropdown
+          results={results}
+          isPending={isPending}
+          selectedIndex={selectedIndex}
+          onSelect={handleSelect}
+        />
       )}
     </div>
   );
