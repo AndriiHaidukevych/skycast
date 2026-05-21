@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useWeatherStore } from "@/src/stores/provider";
+import { LoadingState, ErrorState } from "@/src/ui/states";
 import { WelcomeState, CurrentWeatherCard, StatsGrid, ForecastSection } from "./components";
 import { HOME_MESSAGES } from "./home.constants";
 
@@ -23,35 +24,13 @@ export const HomeScreen = observer(function HomeScreen({ initialCity }: Props) {
     }
   }, [initialCity, currentCity, currentWeather, store]);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh] gap-3">
-        <span className="material-symbols-outlined text-primary animate-spin">
-          progress_activity
-        </span>
-        <span className="font-body-md text-on-surface-variant">{loadingWeather}</span>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingState message={loadingWeather} />;
 
   if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-stack-sm text-center px-container-padding-mobile">
-        <span className="material-symbols-outlined text-error text-[48px]">cloud_off</span>
-        <p className="font-headline-md text-headline-md text-error">{error}</p>
-        <button
-          onClick={() => store.clearError()}
-          className="font-label-caps text-label-caps text-primary hover:underline"
-        >
-          {tryAgain}
-        </button>
-      </div>
-    );
+    return <ErrorState message={error} onRetry={() => store.clearError()} retryLabel={tryAgain} />;
   }
 
-  if (!currentWeather || !recommendations) {
-    return <WelcomeState />;
-  }
+  if (!currentWeather || !recommendations) return <WelcomeState />;
 
   return (
     <div

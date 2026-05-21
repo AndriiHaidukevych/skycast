@@ -27,13 +27,11 @@ export function WeatherMapWidget({ lat, lon, city }: Props) {
     <div className="relative w-full h-[320px] rounded-xl overflow-hidden glass-card">
       <WeatherMap lat={lat} lon={lon} activeLayer={activeLayer} />
 
-      <div className="absolute top-0 left-0 right-0 z-[1000] flex items-center justify-between px-stack-md py-stack-sm bg-gradient-to-b from-surface/80 to-transparent pointer-events-none">
-        <div className="flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-[18px]">map</span>
-          <span className="font-label-caps text-label-caps text-on-surface">
-            LIVE WEATHER MAP · {city}
-          </span>
-        </div>
+      <div className="absolute top-stack-sm right-stack-sm z-[1000] flex items-center gap-2 glass-card px-3 py-1.5 rounded-full pointer-events-none">
+        <span className="material-symbols-outlined text-primary text-[16px]">map</span>
+        <span className="font-label-caps text-label-caps text-on-surface">
+          LIVE WEATHER MAP · {city}
+        </span>
       </div>
 
       <div className="absolute bottom-stack-sm left-1/2 -translate-x-1/2 z-[1000] flex gap-2 pointer-events-auto">

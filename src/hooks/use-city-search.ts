@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiClient } from "@/src/lib/axios";
-import { API_ENDPOINTS } from "@/src/lib/constants";
+import { geocodingService } from "@/src/services/geocoding.service";
 import { useDebounce } from "./use-debounce";
 import type { GeocodingResult } from "@/src/types/geocoding";
 
@@ -17,12 +16,10 @@ export function useCitySearch(query: string) {
 
     let cancelled = false;
 
-    apiClient
-      .get<{ results: GeocodingResult[] }>(API_ENDPOINTS.GEOCODING, {
-        params: { q: debouncedQuery },
-      })
-      .then(({ data }) => {
-        if (!cancelled) setResults(data.results);
+    geocodingService
+      .search(debouncedQuery)
+      .then((data) => {
+        if (!cancelled) setResults(data);
       })
       .catch(() => {
         if (!cancelled) setResults([]);

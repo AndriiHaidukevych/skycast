@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useCitySearch } from "@/src/hooks/use-city-search";
-import { useSearchHistory } from "@/src/hooks/use-search-history";
 import { SearchResultsDropdown } from "./search-results-dropdown";
 import { RecentSearches } from "./recent-searches";
 import { SEARCH_BAR_MESSAGES } from "./search-bar.constants";
@@ -14,6 +13,8 @@ interface Props {
   className?: string;
   inputClassName?: string;
   onSelect?: (city: GeocodingResult) => void;
+  history?: string[];
+  onSaveSearch?: (term: string) => void;
 }
 
 export function SearchBar({
@@ -21,6 +22,8 @@ export function SearchBar({
   className,
   inputClassName,
   onSelect,
+  history = [],
+  onSaveSearch,
 }: Props) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -29,7 +32,6 @@ export function SearchBar({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { results, isPending, isEmpty, clear } = useCitySearch(query);
-  const { history, saveSearch } = useSearchHistory();
 
   const showHistory = isFocused && query.trim().length < 2 && history.length > 0;
   const showResults =
@@ -52,23 +54,23 @@ export function SearchBar({
       setSelectedIndex(-1);
       setIsFocused(false);
       clear();
-      saveSearch(city.name);
+      onSaveSearch?.(city.name);
       if (onSelect) {
         onSelect(city);
       } else {
         router.push(`/?city=${encodeURIComponent(city.name)}`);
       }
     },
-    [onSelect, router, clear, saveSearch]
+    [onSelect, router, clear, onSaveSearch]
   );
 
   function handleHistorySelect(term: string) {
     setIsFocused(false);
-    saveSearch(term);
+    onSaveSearch?.(term);
     if (onSelect) {
       onSelect({ name: term, country: "", lat: 0, lon: 0 });
     } else {
-      router.push(`/details/${encodeURIComponent(term)}`);
+      router.push(`/?city=${encodeURIComponent(term)}`);
     }
   }
 

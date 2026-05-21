@@ -1,4 +1,4 @@
-export interface WeatherData {
+export interface WeatherBase {
   city: string;
   country: string;
   lat: number;
@@ -10,19 +10,28 @@ export interface WeatherData {
   tempMax: number;
   description: string;
   conditionCode: number;
+}
+
+export interface AtmosphericData {
   humidity: number;
   pressure: number;
   windSpeed: number;
-  visibility: number;
   cloudCover: number;
   dewPoint: number;
   uvIndex: number;
   precipitationChance: number;
+  visibility: number;
+}
+
+export interface SolarData {
   sunrise: string;
   sunset: string;
   daylightDuration: string;
   twilightDuration: string;
 }
+
+// Full type — backward compatible intersection
+export type WeatherData = WeatherBase & AtmosphericData & SolarData;
 
 export interface ForecastDay {
   date: string;
