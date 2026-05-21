@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { observer } from "mobx-react-lite";
 import { useWeatherStore } from "@/src/stores/provider";
 import { LoadingState, ErrorState } from "@/src/ui/states";
@@ -13,8 +14,9 @@ interface Props {
 
 export const HomeScreen = observer(function HomeScreen({ initialCity }: Props) {
   const store = useWeatherStore();
+  const router = useRouter();
   const { currentWeather, recommendations, forecast, isLoading, error, currentCity } = store;
-  const { loadingWeather, tryAgain } = HOME_MESSAGES;
+  const { loadingWeather, tryAgain, backToSearch } = HOME_MESSAGES;
 
   useEffect(() => {
     if (initialCity && initialCity !== currentCity) {
@@ -38,6 +40,16 @@ export const HomeScreen = observer(function HomeScreen({ initialCity }: Props) {
       style={{ background: "radial-gradient(circle at 20% 30%, #1e3a8a 0%, #0b1326 100%)" }}
     >
       <div className="max-w-7xl mx-auto px-container-padding-mobile md:px-container-padding-desktop py-stack-lg space-y-stack-lg">
+        <button
+          onClick={() => {
+            store.reset();
+            router.replace("/");
+          }}
+          className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps transition-colors"
+        >
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          {backToSearch}
+        </button>
         <CurrentWeatherCard weather={currentWeather} recommendations={recommendations} />
         <StatsGrid weather={currentWeather} />
         <ForecastSection forecast={forecast} />

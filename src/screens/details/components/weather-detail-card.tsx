@@ -48,7 +48,7 @@ export function WeatherDetailCard({ weather, isFav, onToggleFavorite }: Props) {
               className="hover:scale-110 transition-transform shrink-0"
             >
               <span
-                className={`material-symbols-outlined text-[32px] ${isFav ? "text-secondary" : "text-on-surface-variant/50 hover:text-secondary"} transition-colors`}
+                className={`material-symbols-outlined text-[36px] ${isFav ? "text-secondary" : "text-on-surface-variant/50 hover:text-secondary"} transition-colors`}
                 style={{ fontVariationSettings: isFav ? "'FILL' 1" : "'FILL' 0" }}
               >
                 star

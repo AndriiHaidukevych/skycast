@@ -18,10 +18,7 @@ export function ForecastSection({ forecast }: Props) {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
         {forecast.map(({ label, date, icon, morning, afternoon, evening }) => (
-          <div
-            key={date}
-            className="glass-card rounded-xl p-stack-md hover:bg-white/10 transition-all cursor-default"
-          >
+          <div key={date} className="glass-card rounded-xl p-stack-md">
             <div className="flex justify-between items-start mb-stack-md">
               <div>
                 <p className="font-headline-md text-headline-md">{label}</p>
