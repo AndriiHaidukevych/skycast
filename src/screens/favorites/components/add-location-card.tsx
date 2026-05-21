@@ -2,50 +2,34 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { SearchBar } from "@/src/ui/search-bar";
 import { FAVORITES_MESSAGES } from "../favorites.constants";
+import type { GeocodingResult } from "@/src/types/geocoding";
 
-const { addLocation, addLocationSub, addSearchPlaceholder, addSearchButton, addCancelButton } =
-  FAVORITES_MESSAGES;
+const { addLocation, addLocationSub, addSearchPlaceholder, addCancelButton } = FAVORITES_MESSAGES;
 
 export function AddLocationCard() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState("");
 
-  function handleSearch(e: React.SyntheticEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (!query.trim()) return;
-    router.push(`/details/${encodeURIComponent(query.trim())}`);
+  function handleSelect({ name }: GeocodingResult) {
+    router.push(`/details/${encodeURIComponent(name)}`);
   }
 
   if (isOpen) {
     return (
-      <div className="border-2 border-dashed border-primary/40 p-6 rounded-xl flex flex-col items-center justify-center h-64 bg-white/2">
-        <form onSubmit={handleSearch} className="w-full space-y-3">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={addSearchPlaceholder}
-            autoFocus
-            className="w-full bg-white/5 border border-white/10 rounded-full py-2 px-4 text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary/50 transition-all"
-          />
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="flex-1 bg-primary text-on-primary font-label-caps text-label-caps py-2 rounded-full hover:bg-primary/90 transition-all"
-            >
-              {addSearchButton}
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="px-4 glass-card font-label-caps text-label-caps text-on-surface-variant rounded-full hover:bg-white/10 transition-all"
-            >
-              {addCancelButton}
-            </button>
-          </div>
-        </form>
+      <div className="border-2 border-dashed border-primary/40 p-6 rounded-xl flex flex-col gap-3 justify-center h-64 bg-white/2">
+        <SearchBar
+          placeholder={addSearchPlaceholder}
+          onSelect={handleSelect}
+        />
+        <button
+          type="button"
+          onClick={() => setIsOpen(false)}
+          className="px-4 py-2 glass-card font-label-caps text-label-caps text-on-surface-variant rounded-full hover:bg-white/10 transition-all"
+        >
+          {addCancelButton}
+        </button>
       </div>
     );
   }
