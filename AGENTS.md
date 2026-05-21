@@ -11,11 +11,13 @@ Model      →  src/modules/
 ```
 
 **Data flow (one direction only):**
+
 ```
 OpenWeather API → Route Handler → Model → ViewModel (MobX) → View
 ```
 
 **Layer rules:**
+
 - `src/screens/` — UI only. No direct API calls. Only reads from MobX store.
 - `src/stores/` — MobX `makeAutoObservable`. Calls Model functions via Axios.
 - `src/modules/` — Pure business logic. No UI. No MobX.
@@ -72,15 +74,18 @@ src/
 ## Coding Rules
 
 ### Files
+
 - Max **200 lines** per file — decompose into `components/` subfolder
 - **kebab-case** for all filenames
 - Each folder has an `index.ts` barrel export
 
 ### Strings
+
 - All user-facing strings in constants files (`*.constants.ts` or `src/lib/messages.ts`)
 - Never hardcode strings directly in JSX
 
 ### Imports
+
 ```typescript
 // ✅ Screen reads from Store
 import { useWeatherStore } from "@/src/stores/provider";
@@ -92,15 +97,18 @@ import { fetchCurrentWeather } from "@/src/modules/weather";
 ```
 
 ### Destructuring
+
 - Always destructure objects before use — avoid repeated `obj.prop.subprop`
 - Destructure API_ERRORS at top of file: `const { UNAUTHORIZED } = API_ERRORS;`
 
 ### Styling
+
 - Tailwind only — never hardcode hex colors in JSX
 - Glassmorphism helpers: `glass-card`, `glass-card-heavy`, `glass-card-sm` (in `globals.css`)
 - Design tokens in `tailwind.config.ts` (sourced from `DESIGN.md`)
 
 ### State
+
 - MobX `flow()` for all async actions in Store
 - Screens use `observer()` from `mobx-react-lite`
 - No `useState` for server data — use Store
@@ -110,21 +118,25 @@ import { fetchCurrentWeather } from "@/src/modules/weather";
 ## Key Modules
 
 ### `src/modules/weather/`
+
 - `weather.api.ts` — `fetchCurrentWeather(city)`, `fetchForecast(city)` via Axios
 - `weather.mapper.ts` — maps OpenWeather response → `WeatherData` type, calculates dew point
 - `weather.utils.ts` — `groupForecastByDay()`, `calcDewPoint()`
 - `validation.ts` — Zod schemas for OpenWeather API responses
 
 ### `src/modules/solar/`
+
 - `getSolarData(lat, lon, date, timezoneOffsetSeconds)` using `suncalc`
 - Returns `{ sunrise, sunset, daylightDuration, twilightDuration }` in local time
 
 ### `src/modules/recommendations/`
+
 - `getRecommendations(input)` → `{ outfit, activity, health }`
 - Rules: temp ranges, condition codes, UV index, humidity, wind speed
 - All text in `src/lib/messages.ts` → `RECOMMENDATION_MESSAGES`
 
 ### `src/lib/weather-cache.ts`
+
 - `getCachedCurrentWeather(city)` — 10-min cache via `unstable_cache`
 - `getCachedForecast(city)` — 10-min cache via `unstable_cache`
 - `getCacheHeaders(_fetchedAt)` — returns `X-Cache` / `X-Cache-Age` headers
@@ -143,6 +155,7 @@ import { fetchCurrentWeather } from "@/src/modules/weather";
 ## Database (Prisma + PostgreSQL)
 
 Key models:
+
 - `User` — Better Auth user
 - `Session`, `Account`, `Verification` — Better Auth internals
 - `Favorite` — `city_name`, `userId`, `lat`, `lon`, `timezone`
@@ -153,6 +166,7 @@ Key models:
 ## Quality Checks
 
 Run before every commit:
+
 ```bash
 pnpm lint        # ESLint — zero warnings
 pnpm typecheck   # TypeScript strict

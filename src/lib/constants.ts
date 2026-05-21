@@ -11,3 +11,5 @@ export const API_ENDPOINTS = {
 } as const;
 
 export const OPENWEATHER_BASE_URL = "https://api.openweathermap.org";
+
+export const MAX_SEARCH_HISTORY = 5;

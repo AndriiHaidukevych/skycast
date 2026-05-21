@@ -88,16 +88,16 @@ prisma/
 
 ## Environment Variables
 
-| Variable                        | Description                                          |
-| ------------------------------- | ---------------------------------------------------- |
-| `OPENWEATHER_API_KEY`           | API key from openweathermap.org                      |
-| `NEXT_PUBLIC_OPENWEATHER_API_KEY` | Same key — used client-side for map tiles          |
-| `DATABASE_URL`                  | PostgreSQL connection string                         |
-| `BETTER_AUTH_SECRET`            | Random secret (`openssl rand -base64 32`)            |
-| `BETTER_AUTH_URL`               | App base URL (e.g. `http://localhost:3000`)          |
-| `NEXT_PUBLIC_BETTER_AUTH_URL`   | Same as above — used client-side                     |
-| `GOOGLE_CLIENT_ID`              | From Google Cloud Console OAuth 2.0                  |
-| `GOOGLE_CLIENT_SECRET`          | From Google Cloud Console OAuth 2.0                  |
+| Variable                          | Description                                 |
+| --------------------------------- | ------------------------------------------- |
+| `OPENWEATHER_API_KEY`             | API key from openweathermap.org             |
+| `NEXT_PUBLIC_OPENWEATHER_API_KEY` | Same key — used client-side for map tiles   |
+| `DATABASE_URL`                    | PostgreSQL connection string                |
+| `BETTER_AUTH_SECRET`              | Random secret (`openssl rand -base64 32`)   |
+| `BETTER_AUTH_URL`                 | App base URL (e.g. `http://localhost:3000`) |
+| `NEXT_PUBLIC_BETTER_AUTH_URL`     | Same as above — used client-side            |
+| `GOOGLE_CLIENT_ID`                | From Google Cloud Console OAuth 2.0         |
+| `GOOGLE_CLIENT_SECRET`            | From Google Cloud Console OAuth 2.0         |
 
 **Google OAuth redirect URI to configure:** `http://localhost:3000/api/auth/callback/google`
 
@@ -134,6 +134,7 @@ Request → Route Handler → unstable_cache → OpenWeather API
 ```
 
 **How it works:**
+
 - First request for a city → fetches from OpenWeather API, stores result in cache
 - Subsequent requests within 10 minutes → served from cache instantly (no API call)
 - After 10 minutes → stale data served immediately, fresh fetch triggered in background

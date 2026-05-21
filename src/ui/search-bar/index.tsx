@@ -3,7 +3,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useCitySearch } from "@/src/hooks/use-city-search";
+import { useSearchHistory } from "@/src/hooks/use-search-history";
 import { SearchResultsDropdown } from "./search-results-dropdown";
+import { RecentSearches } from "./recent-searches";
 import { SEARCH_BAR_MESSAGES } from "./search-bar.constants";
 import type { GeocodingResult } from "@/src/types/geocoding";
 
@@ -27,8 +29,12 @@ export function SearchBar({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { results, isPending, isEmpty, clear } = useCitySearch(query);
+  const { history, saveSearch } = useSearchHistory();
 
-  const isOpen = isFocused && query.trim().length >= 2 && (results.length > 0 || isPending || isEmpty);
+  const showHistory = isFocused && query.trim().length < 2 && history.length > 0;
+  const showResults =
+    isFocused && query.trim().length >= 2 && (results.length > 0 || isPending || isEmpty);
+  const isOpen = showHistory || showResults;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -46,14 +52,20 @@ export function SearchBar({
       setSelectedIndex(-1);
       setIsFocused(false);
       clear();
+      saveSearch(city.name);
       if (onSelect) {
         onSelect(city);
       } else {
         router.push(`/details/${encodeURIComponent(city.name)}`);
       }
     },
-    [onSelect, router, clear]
+    [onSelect, router, clear, saveSearch]
   );
+
+  function handleHistorySelect(term: string) {
+    setIsFocused(false);
+    router.push(`/details/${encodeURIComponent(term)}`);
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setQuery(e.target.value);
@@ -63,7 +75,7 @@ export function SearchBar({
   function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (!isOpen) return;
 
-    if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+    if (["ArrowDown", "ArrowUp"].includes(e.key)) {
       e.preventDefault();
     }
 
@@ -114,13 +126,18 @@ export function SearchBar({
       </div>
 
       {isOpen && (
-        <SearchResultsDropdown
-          results={results}
-          isPending={isPending}
-          isEmpty={isEmpty}
-          selectedIndex={selectedIndex}
-          onSelect={handleSelect}
-        />
+        <div className="absolute top-full left-0 right-0 mt-2 bg-surface-container-high border border-white/10 rounded-xl overflow-hidden z-50 shadow-xl">
+          {showHistory && <RecentSearches items={history} onSelect={handleHistorySelect} />}
+          {showResults && (
+            <SearchResultsDropdown
+              results={results}
+              isPending={isPending}
+              isEmpty={isEmpty}
+              selectedIndex={selectedIndex}
+              onSelect={handleSelect}
+            />
+          )}
+        </div>
       )}
     </div>
   );

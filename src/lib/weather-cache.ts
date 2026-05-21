@@ -13,11 +13,20 @@ export const getCachedCurrentWeather = unstable_cache(
     console.log(`[CACHE MISS] weather:${city}`);
 
     const raw = await fetchCurrentWeather(city);
-    const { coord: { lat, lon }, timezone } = raw;
+    const {
+      coord: { lat, lon },
+      timezone,
+    } = raw;
     const solar = getSolarData(lat, lon, new Date(), timezone);
     const weather = mapToWeatherData(raw, solar);
     const { temp, conditionCode, windSpeed, uvIndex, humidity } = weather;
-    const recommendations = getRecommendations({ temp, conditionCode, windSpeed, uvIndex, humidity });
+    const recommendations = getRecommendations({
+      temp,
+      conditionCode,
+      windSpeed,
+      uvIndex,
+      humidity,
+    });
 
     return { weather, recommendations, _fetchedAt: Date.now() };
   },
@@ -30,7 +39,9 @@ export const getCachedForecast = unstable_cache(
     console.log(`[CACHE MISS] forecast:${city}`);
 
     const raw = await fetchForecast(city);
-    const { city: { timezone } } = raw;
+    const {
+      city: { timezone },
+    } = raw;
     const forecast = groupForecastByDay(raw, timezone);
 
     return { forecast, _fetchedAt: Date.now() };
