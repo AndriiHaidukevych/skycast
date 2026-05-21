@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { observer } from "mobx-react-lite";
 import { useWeatherStore } from "@/src/stores/provider";
 import type { FavoriteCity } from "@/src/types/favorites";
 import { getLocalTime } from "../favorites.constants";
@@ -10,7 +11,7 @@ interface Props {
   city: FavoriteCity;
 }
 
-export function CityCard({ city }: Props) {
+export const CityCard = observer(function CityCard({ city }: Props) {
   const store = useWeatherStore();
   const { id, city_name, country, timezone, weather } = city;
 
@@ -63,4 +64,4 @@ export function CityCard({ city }: Props) {
       </div>
     </Link>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { makeAutoObservable, flow } from "mobx";
+import { makeAutoObservable, flow, runInAction } from "mobx";
 import { apiClient } from "@/src/lib/axios";
 import { API_ENDPOINTS } from "@/src/lib/constants";
 import type {
@@ -90,7 +90,6 @@ class WeatherStore {
       );
       this.favorites = data.favorites;
 
-      // Fetch weather for each favorite in parallel
       yield Promise.all(
         this.favorites.map(async (fav) => {
           try {
@@ -99,7 +98,9 @@ class WeatherStore {
               { params: { city: fav.city_name } }
             );
             const { temp, description, conditionCode } = wd.weather;
-            fav.weather = { temp, description, conditionCode };
+            runInAction(() => {
+              fav.weather = { temp, description, conditionCode };
+            });
           } catch {
             // weather unavailable for this city
           }

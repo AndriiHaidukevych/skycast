@@ -6,16 +6,22 @@ import { useWeatherStore } from "@/src/stores/provider";
 import { WelcomeState, CurrentWeatherCard, StatsGrid, ForecastSection } from "./components";
 import { HOME_MESSAGES } from "./home.constants";
 
-export const HomeScreen = observer(function HomeScreen() {
+interface Props {
+  initialCity?: string;
+}
+
+export const HomeScreen = observer(function HomeScreen({ initialCity }: Props) {
   const store = useWeatherStore();
   const { currentWeather, recommendations, forecast, isLoading, error, currentCity } = store;
   const { loadingWeather, tryAgain } = HOME_MESSAGES;
 
   useEffect(() => {
-    if (currentCity && !currentWeather) {
+    if (initialCity && initialCity !== currentCity) {
+      store.fetchWeather(initialCity);
+    } else if (currentCity && !currentWeather) {
       store.fetchWeather(currentCity);
     }
-  }, [currentCity, currentWeather, store]);
+  }, [initialCity, currentCity, currentWeather, store]);
 
   if (isLoading) {
     return (
