@@ -2,6 +2,7 @@ import { makeAutoObservable, flow } from "mobx";
 import { weatherClientService } from "@/src/services/weather.client.service";
 import type { IWeatherClientService } from "@/src/services/weather.client.service";
 import type { WeatherData, ForecastDay, Recommendations } from "@/src/types/weather";
+import { STORE_ERRORS } from "@/src/lib/messages";
 
 class WeatherStore {
   currentCity: string | null = null;
@@ -45,7 +46,7 @@ class WeatherStore {
       this.currentCity = weather.city;
       this.fetchForecast(weather.city);
     } catch {
-      this.error = "Failed to fetch weather data. Please try again.";
+      this.error = STORE_ERRORS.WEATHER_FETCH_FAILED;
     } finally {
       this.isLoading = false;
     }

@@ -100,3 +100,7 @@ export const RECOMMENDATION_MESSAGES = {
     },
   },
 } as const;
+
+export const STORE_ERRORS = {
+  WEATHER_FETCH_FAILED: "Failed to fetch weather data. Please try again.",
+} as const;
