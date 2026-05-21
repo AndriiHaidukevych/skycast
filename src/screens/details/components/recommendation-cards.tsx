@@ -27,10 +27,7 @@ export function RecommendationCards({ recommendations }: Props) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
         {cards.map(({ data: { icon, title, description }, label, colorClass }) => (
-          <div
-            key={label}
-            className="glass-card rounded-xl p-stack-md"
-          >
+          <div key={label} className="glass-card rounded-xl p-stack-md">
             <div className="flex items-start justify-between mb-stack-sm">
               <span className={`material-symbols-outlined ${colorClass} text-4xl`}>{icon}</span>
               <span className="font-label-caps text-label-caps text-on-surface-variant">

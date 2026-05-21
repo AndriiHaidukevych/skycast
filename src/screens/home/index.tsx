@@ -41,7 +41,10 @@ export const HomeScreen = observer(function HomeScreen({ initialCity }: Props) {
     >
       <div className="max-w-7xl mx-auto px-container-padding-mobile md:px-container-padding-desktop py-stack-lg space-y-stack-lg">
         <button
-          onClick={() => { store.reset(); router.replace("/"); }}
+          onClick={() => {
+            store.reset();
+            router.replace("/");
+          }}
           className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps transition-colors"
         >
           <span className="material-symbols-outlined text-[18px]">arrow_back</span>
