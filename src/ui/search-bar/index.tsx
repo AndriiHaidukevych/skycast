@@ -56,7 +56,7 @@ export function SearchBar({
       if (onSelect) {
         onSelect(city);
       } else {
-        router.push(`/details/${encodeURIComponent(city.name)}`);
+        router.push(`/?city=${encodeURIComponent(city.name)}`);
       }
     },
     [onSelect, router, clear, saveSearch]
@@ -64,7 +64,12 @@ export function SearchBar({
 
   function handleHistorySelect(term: string) {
     setIsFocused(false);
-    router.push(`/details/${encodeURIComponent(term)}`);
+    saveSearch(term);
+    if (onSelect) {
+      onSelect({ name: term, country: "", lat: 0, lon: 0 });
+    } else {
+      router.push(`/details/${encodeURIComponent(term)}`);
+    }
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
