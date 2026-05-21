@@ -18,5 +18,4 @@ out/
 next-env.d.ts
 *.tsbuildinfo
 
-# prisma
-prisma/migrations/
+# prisma — migrations are committed (required for deployment and assignment)
