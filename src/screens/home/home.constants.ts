@@ -12,6 +12,7 @@ export const HOME_MESSAGES = {
   outfitLabel: "OUTFIT TODAY",
   viewFullDetails: "View full details",
 
+  searchAnotherCity: "Search another city...",
   forecastTitle: "3-Day Forecast",
   forecastSlots: ["Morning", "Afternoon", "Evening"] as const,
 } as const;
