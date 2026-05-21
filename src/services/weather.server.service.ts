@@ -12,7 +12,6 @@ export interface IWeatherServerService {
 
 export const weatherServerService: IWeatherServerService = {
   async getCurrentWeather(city) {
-    console.log(`[CACHE MISS] weather:${city}`);
     const raw = await fetchCurrentWeather(city);
     const {
       coord: { lat, lon },
@@ -32,7 +31,6 @@ export const weatherServerService: IWeatherServerService = {
   },
 
   async getForecast(city) {
-    console.log(`[CACHE MISS] forecast:${city}`);
     const raw = await fetchForecast(city);
     const {
       city: { timezone },
