@@ -1,11 +1,10 @@
 import type { ForecastDay } from "@/src/types/weather";
 import { HOME_MESSAGES } from "../home.constants";
+import { getOpenWeatherIconUrl } from "@/src/lib/constants";
 
 interface Props {
   forecast: ForecastDay[];
 }
-
-const OW_ICON_URL = (icon: string) => `https://openweathermap.org/img/wn/${icon}@2x.png`;
 
 export function ForecastSection({ forecast }: Props) {
   const { forecastTitle, forecastSlots } = HOME_MESSAGES;
@@ -29,7 +28,7 @@ export function ForecastSection({ forecast }: Props) {
                 <p className="font-label-caps text-label-caps text-on-surface-variant">{date}</p>
               </div>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={OW_ICON_URL(icon)} alt={label} width={48} height={48} />
+              <img src={getOpenWeatherIconUrl(icon)} alt={label} width={48} height={48} />
             </div>
             <div className="space-y-stack-sm">
               {[

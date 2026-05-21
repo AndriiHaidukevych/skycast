@@ -1,36 +1,37 @@
 # SkyCast — Architecture & Conventions
 
-## Architecture: MVVM
-
-This project follows the **MVVM (Model-View-ViewModel)** pattern enforced through strict layer boundaries.
+## Architecture: MVVM + Service Layer
 
 ```
 View       →  src/screens/ + src/ui/
 ViewModel  →  src/stores/
+Service    →  src/services/
 Model      →  src/modules/
 ```
 
 ### Layer Rules
 
-| Layer         | Location                  | Rules                                                                                           |
-| ------------- | ------------------------- | ----------------------------------------------------------------------------------------------- |
-| **View**      | `src/screens/`, `src/ui/` | Only reads from ViewModel (Store). No direct module calls. No API calls.                        |
-| **ViewModel** | `src/stores/`             | MobX `makeAutoObservable`. Calls Model functions. Exposes observable state and actions to View. |
-| **Model**     | `src/modules/`            | Pure business logic. No UI imports. No MobX. Returns typed data.                                |
+| Layer         | Location                  | Rules                                                                                        |
+| ------------- | ------------------------- | -------------------------------------------------------------------------------------------- |
+| **View**      | `src/screens/`, `src/ui/` | Reads from ViewModel. No direct API calls. No module imports.                                |
+| **ViewModel** | `src/stores/`             | MobX `makeAutoObservable`. Depends on Service interfaces, not `apiClient`.                   |
+| **Service**   | `src/services/`           | Interfaces + singletons. Client services call `/api/*`. Server services orchestrate modules. |
+| **Model**     | `src/modules/`            | Pure business logic. No UI. No MobX. No HTTP.                                                |
 
-**Data flow — one direction only:**
+**Data flow:**
 
 ```
-OpenWeather API → Route Handler → Model (modules/) → ViewModel (stores/) → View (screens/)
+OpenWeather API → Route Handler → IWeatherServerService → modules
+Browser ← View ← ViewModel (MobX) ← IWeatherClientService ← /api/*
 ```
 
 ### SOLID Principles
 
-- **S** — Each module owns exactly one domain (`weather`, `solar`, `recommendations`, `favorites`, `auth`)
-- **O** — Add new modules without touching existing ones
-- **L** — TypeScript strict mode enforces type compatibility across layers
-- **I** — Each module exports only what callers need (no fat interfaces)
-- **D** — Screens depend on Store abstractions, never on concrete module functions
+- **S** — `WeatherStore` (weather/forecast) and `FavoritesStore` (favorites/history) are separate classes
+- **O** — Recommendations use Strategy pattern — add new `*Strategy` class, register in engine, no existing code changes
+- **L** — TypeScript strict mode enforces type compatibility
+- **I** — `WeatherData = WeatherBase & AtmosphericData & SolarData` — components accept only what they need
+- **D** — Stores depend on service interfaces (`IWeatherClientService`), not concrete `apiClient`
 
 ---
 
@@ -38,10 +39,10 @@ OpenWeather API → Route Handler → Model (modules/) → ViewModel (stores/) �
 
 ```
 app/                    # Next.js App Router — routing wrappers ONLY
-├── page.tsx            # → import { HomeScreen } from "@/src/screens/home"
+├── page.tsx            # → HomeScreen
 ├── login/page.tsx
 ├── details/[city]/page.tsx
-├── favorites/page.tsx
+├── favorites/page.tsx  # auth guard via auth.api.getSession()
 └── api/                # Route Handlers (server-side, protect API keys)
 
 src/
@@ -51,16 +52,43 @@ src/
 │   ├── favorites/
 │   └── login/
 ├── modules/            # Model — business logic, NO UI
-│   ├── weather/        # OpenWeather API client
-│   ├── solar/          # Sunrise/sunset calculations
-│   ├── recommendations/ # Outfit/activity/health rules
-│   └── favorites/      # DB operations
-├── stores/             # ViewModel — MobX stores
-│   └── weather-store/
-├── ui/                 # Reusable View primitives (GlassCard, SearchBar…)
-├── lib/                # Infrastructure (axios, auth, prisma, constants)
-├── hooks/              # Custom React hooks
-└── types/              # Shared TypeScript types
+│   ├── weather/        # weather.api.ts, weather.mapper.ts, weather.utils.ts, validation.ts
+│   ├── solar/          # getSolarData() via suncalc
+│   ├── recommendations/ # Strategy pattern: engine + OutfitStrategy, ActivityStrategy, HealthStrategy
+│   │   └── strategies/
+│   ├── favorites/      # Prisma DB ops (used by Route Handlers)
+│   ├── geocoding/      # Geocoding API + Zod validation
+│   └── search-history/ # Prisma search history ops
+├── services/           # DIP — interfaces + singletons
+│   ├── weather.client.service.ts   # IWeatherClientService
+│   ├── weather.server.service.ts   # IWeatherServerService (server-only)
+│   ├── geocoding.service.ts        # IGeocodingService
+│   ├── search-history.service.ts   # ISearchHistoryService
+│   └── favorites.service.ts        # IFavoritesService
+├── stores/             # ViewModel — MobX
+│   ├── weather-store/  # WeatherStore: weather + forecast
+│   ├── favorites-store/ # FavoritesStore: favorites + search history
+│   └── provider.tsx    # StoreProvider, useWeatherStore(), useFavoritesStore()
+├── ui/                 # Reusable View primitives
+│   ├── header/
+│   ├── footer/
+│   ├── search-bar/     # Autocomplete + history (history/onSaveSearch as props)
+│   ├── weather-map/    # Leaflet + OpenWeather tiles
+│   └── states/         # LoadingState, ErrorState
+├── lib/
+│   ├── auth.ts / auth-client.ts
+│   ├── axios.ts        # Single Axios instance
+│   ├── constants.ts    # API_ENDPOINTS, getOpenWeatherIconUrl(), getOpenWeatherTileUrl()
+│   ├── messages.ts     # All user-facing strings
+│   ├── prisma.ts
+│   └── weather-cache.ts # unstable_cache wrappers (10-min TTL)
+├── hooks/
+│   ├── use-debounce.ts
+│   └── use-city-search.ts  # Debounced via IGeocodingService
+└── types/
+    ├── weather.ts      # WeatherBase, AtmosphericData, SolarData, WeatherData
+    ├── favorites.ts
+    └── geocoding.ts
 
 prisma/
 └── schema.prisma
@@ -73,69 +101,72 @@ prisma/
 ### Files
 
 - Max **200 lines** per file — decompose into `components/` subfolder
-- **kebab-case** for all file names (`weather-card.tsx`, `solar.types.ts`)
+- **kebab-case** for all file names
 - **Barrel exports** — every folder has `index.ts`
 
 ### Naming
 
-- Screens: `HomeScreen`, `DetailsScreen` (PascalCase + Screen suffix)
-- Stores: `WeatherStore` (PascalCase + Store suffix)
-- Modules: plain exports (`getWeather`, `getSolarData`)
-- UI components: `GlassCard`, `SearchBar` (PascalCase)
+- Screens: `HomeScreen` (PascalCase + Screen suffix)
+- Stores: `WeatherStore`, `FavoritesStore`
+- Services: `weatherClientService` (camelCase singleton)
+- Modules: plain function exports (`getRecommendations`, `getSolarData`)
+- UI: `LoadingState`, `SearchBar` (PascalCase)
 
 ### Imports
 
 ```typescript
-// ✅ Screen imports from Store
-import { useWeatherStore } from "@/src/stores/weather-store";
+// ✅ Screen reads from Store
+import { useWeatherStore, useFavoritesStore } from "@/src/stores/provider";
 
-// ✅ Store imports from Module
-import { getCurrentWeather } from "@/src/modules/weather";
+// ✅ Store depends on Service interface
+import { weatherClientService } from "@/src/services/weather.client.service";
 
-// ❌ Screen must NOT import from modules directly
-import { getCurrentWeather } from "@/src/modules/weather"; // in a screen = WRONG
+// ✅ Route Handler uses server service or module
+import { getCachedCurrentWeather } from "@/src/lib/weather-cache";
+
+// ❌ Screen must NOT import from services or modules directly
 ```
 
-### Module structure
-
-Each module in `src/modules/<domain>/` follows:
-
-```
-weather/
-├── index.ts          # Public API (exports only)
-├── weather.types.ts  # TypeScript interfaces
-├── weather.utils.ts  # Pure helper functions
-└── validation.ts     # Zod schemas
-```
-
-### Store structure (ViewModel)
+### Recommendations (OCP — Strategy Pattern)
 
 ```typescript
-// src/stores/weather-store/index.ts
-class WeatherStore {
-  // Observable state
-  currentWeather: WeatherData | null = null;
-  isLoading = false;
-  error: string | null = null;
-
-  constructor() { makeAutoObservable(this); }
-
-  // Actions — call Model functions
-  async searchCity(city: string) { ... }
+// Add new type — zero changes to existing code:
+class PackingStrategy implements IRecommendationStrategy {
+  recommend(input): Recommendation { ... }
 }
+engine.register("packing", new PackingStrategy());
 ```
 
-### Route handlers
+### Loading / Error states
 
-- All calls to external APIs (OpenWeather) happen **server-side** in `app/api/`
-- Never expose API keys to client
-- Route handlers call module functions, return typed JSON
+```typescript
+import { LoadingState, ErrorState } from "@/src/ui/states";
+
+if (isLoading) return <LoadingState message="Loading…" />;
+if (isLoading) return <LoadingState message="Loading…" fullPage={false} />; // inline
+if (error) return <ErrorState message={error} onRetry={retry} retryLabel="Try again" />;
+```
 
 ### Styling
 
-- Use Tailwind classes only — never hardcode hex colors in JSX
-- All design tokens come from `tailwind.config.ts` (sourced from `DESIGN.md`)
-- Glassmorphism helpers: `glass-card`, `glass-card-heavy`, `glass-card-sm` (defined in `globals.css`)
+- Tailwind only — never hardcode hex colors in JSX
+- Design tokens in `tailwind.config.ts` (sourced from `DESIGN.md`)
+- Glassmorphism: `glass-card`, `glass-card-heavy`, `glass-card-sm`
+
+### State (MobX)
+
+- `flow()` for async actions in Store
+- `observer()` on all screens that read from store
+- `runInAction()` when mutating observable inside `async` callback (not in flow)
+
+---
+
+## Auth
+
+- **Provider:** Better Auth + Google OAuth
+- **Protected pages:** `app/favorites/page.tsx` — `auth.api.getSession({ headers: await headers() })`
+- **Client:** `useSession()`, `signIn.social({ provider: "google" })`, `signOut()` from `src/lib/auth-client.ts`
+- No middleware — auth checked in page Server Components directly
 
 ---
 
@@ -144,16 +175,6 @@ class WeatherStore {
 ```bash
 pnpm lint       # ESLint — zero warnings allowed
 pnpm typecheck  # TypeScript strict mode
-pnpm test       # Vitest unit tests
+pnpm test       # Vitest unit tests (16 tests)
 pnpm format     # Prettier
 ```
-
----
-
-## Auth
-
-- **Better Auth** with Google OAuth
-- Protected routes: `/favorites` (middleware redirects to `/login`)
-- Server-side session: `auth.api.getSession({ headers: await headers() })` in page/layout Server Components
-- Client-side session: `useSession()` from `@/src/lib/auth-client`
-- Protected pages redirect via `redirect("/login")` directly in the page Server Component — no middleware

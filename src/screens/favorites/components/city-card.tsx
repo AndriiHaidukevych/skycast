@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { observer } from "mobx-react-lite";
-import { useWeatherStore } from "@/src/stores/provider";
+import { useFavoritesStore } from "@/src/stores/provider";
 import type { FavoriteCity } from "@/src/types/favorites";
 import { getLocalTime } from "../favorites.constants";
 import { getConditionIcon } from "@/src/lib/weather-icons";
@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const CityCard = observer(function CityCard({ city }: Props) {
-  const store = useWeatherStore();
+  const store = useFavoritesStore();
   const { id, city_name, country, timezone, weather } = city;
 
   const localTime = getLocalTime(Number(timezone));

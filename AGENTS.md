@@ -2,26 +2,30 @@
 
 Architecture, conventions, and rules for AI agents working on this codebase.
 
-## Architecture: MVVM
+## Architecture: MVVM + Service Layer
 
 ```
 View       →  src/screens/ + src/ui/
 ViewModel  →  src/stores/
+Service    →  src/services/        ← abstractions (interfaces + singletons)
 Model      →  src/modules/
 ```
 
 **Data flow (one direction only):**
 
 ```
-OpenWeather API → Route Handler → Model → ViewModel (MobX) → View
+OpenWeather API → Route Handler → weatherServerService → modules
+                                                          ↓
+Browser ← View ← ViewModel (MobX Store) ← weatherClientService ← /api/*
 ```
 
 **Layer rules:**
 
-- `src/screens/` — UI only. No direct API calls. Only reads from MobX store.
-- `src/stores/` — MobX `makeAutoObservable`. Calls Model functions via Axios.
-- `src/modules/` — Pure business logic. No UI. No MobX.
-- `app/api/` — Route Handlers only. Calls modules. Protects API keys server-side.
+- `src/screens/` — UI only. No direct API calls. Reads from MobX store or passes props down.
+- `src/stores/` — MobX `makeAutoObservable`. Calls Service interfaces, not `apiClient` directly.
+- `src/services/` — Interfaces + singleton implementations. Client services call `/api/*`, server services call modules.
+- `src/modules/` — Pure business logic. No UI. No MobX. No HTTP.
+- `app/api/` — Route Handlers only. Call server services or modules. Protect API keys server-side.
 
 ---
 
@@ -31,43 +35,68 @@ OpenWeather API → Route Handler → Model → ViewModel (MobX) → View
 app/                          # Next.js App Router — thin route wrappers only
 ├── api/
 │   ├── auth/[...all]/        # Better Auth handler
-│   ├── geocoding/            # City autocomplete (OpenWeather Geo API)
-│   ├── weather/current/      # Current weather + solar + recommendations
-│   ├── weather/forecast/     # 3-day forecast
+│   ├── geocoding/            # City autocomplete
+│   ├── weather/current/      # Current weather + solar + recommendations (cached)
+│   ├── weather/forecast/     # 3-day forecast (cached)
+│   ├── search-history/       # Save/get recent searches
 │   └── favorites/            # CRUD favorites (auth required)
 src/
-├── screens/                  # One folder per page, max 200 lines
+├── screens/                  # View — UI logic, max 200 lines
 │   ├── home/
 │   ├── details/
 │   ├── favorites/
 │   └── login/
-├── modules/                  # Business logic — NO UI
-│   ├── weather/              # OpenWeather API client + mapper + utils
+├── modules/                  # Model — business logic, NO UI, NO MobX
+│   ├── weather/              # OpenWeather API client + mapper + utils + validation
 │   ├── solar/                # suncalc sunrise/sunset calculator
-│   ├── recommendations/      # Rule-based outfit/activity/health suggestions
-│   ├── favorites/            # Prisma DB operations
-│   └── geocoding/            # City search autocomplete
-├── ui/                       # Reusable components
+│   ├── recommendations/      # Strategy pattern: OutfitStrategy, ActivityStrategy, HealthStrategy
+│   │   └── strategies/
+│   ├── favorites/            # Prisma DB operations (used by Route Handlers)
+│   ├── geocoding/            # Geocoding API client + Zod validation
+│   └── search-history/       # Prisma search history DB operations
+├── services/                 # Service interfaces + singletons (DIP)
+│   ├── weather.client.service.ts   # IWeatherClientService (calls /api/weather/*)
+│   ├── weather.server.service.ts   # IWeatherServerService (orchestrates modules, server-only)
+│   ├── geocoding.service.ts        # IGeocodingService (calls /api/geocoding)
+│   ├── search-history.service.ts   # ISearchHistoryService (calls /api/search-history)
+│   └── favorites.service.ts        # IFavoritesService (calls /api/favorites)
+├── stores/                   # ViewModel — MobX stores
+│   ├── weather-store/        # WeatherStore: weather + forecast
+│   ├── favorites-store/      # FavoritesStore: favorites + search history
+│   └── provider.tsx          # StoreProvider, useWeatherStore(), useFavoritesStore()
+├── ui/                       # Reusable View primitives
 │   ├── header/
 │   ├── footer/
-│   ├── search-bar/           # Autocomplete with keyboard navigation
-│   └── weather-map/          # Leaflet map with OpenWeather tile layers
-├── stores/
-│   └── weather-store/        # MobX: weather, forecast, favorites, search
+│   ├── search-bar/           # Autocomplete + recent searches (history via props)
+│   ├── weather-map/          # Leaflet map with OpenWeather tile layers
+│   └── states/               # LoadingState, ErrorState (reusable across screens)
 ├── hooks/
 │   ├── use-debounce.ts
-│   └── use-city-search.ts
+│   └── use-city-search.ts    # Debounced geocoding via IGeocodingService
 ├── lib/
 │   ├── auth.ts               # Better Auth server config (Google OAuth)
 │   ├── auth-client.ts        # Better Auth client (useSession, signIn, signOut)
-│   ├── axios.ts              # Axios instance
-│   ├── constants.ts          # API_ENDPOINTS, OPENWEATHER_BASE_URL
+│   ├── axios.ts              # Axios instance (single HTTP client)
+│   ├── constants.ts          # API_ENDPOINTS, OPENWEATHER_BASE_URL, getOpenWeatherIconUrl(), getOpenWeatherTileUrl()
 │   ├── messages.ts           # All user-facing strings (API errors, recommendations)
 │   ├── prisma.ts             # Prisma singleton
-│   ├── weather-cache.ts      # unstable_cache wrappers (10-min TTL)
+│   ├── weather-cache.ts      # unstable_cache wrappers — delegates to IWeatherServerService
 │   └── weather-icons.ts      # conditionCode → Material Symbol icon name
 └── types/                    # Shared TypeScript interfaces
+    ├── weather.ts             # WeatherBase, AtmosphericData, SolarData, WeatherData (intersection)
+    ├── favorites.ts
+    └── geocoding.ts
 ```
+
+---
+
+## SOLID
+
+- **S** — `WeatherStore` (weather/forecast) and `FavoritesStore` (favorites/history) are separate
+- **O** — Recommendations use Strategy pattern — add `NewStrategy implements IRecommendationStrategy`, register in engine, done
+- **L** — TypeScript strict mode enforces type compatibility
+- **I** — `WeatherData = WeatherBase & AtmosphericData & SolarData` — components accept only what they need
+- **D** — Stores depend on service interfaces (`IWeatherClientService`), not on concrete `apiClient`
 
 ---
 
@@ -81,95 +110,110 @@ src/
 
 ### Strings
 
-- All user-facing strings in constants files (`*.constants.ts` or `src/lib/messages.ts`)
+- All user-facing strings in `*.constants.ts` files or `src/lib/messages.ts`
 - Never hardcode strings directly in JSX
 
 ### Imports
 
 ```typescript
 // ✅ Screen reads from Store
-import { useWeatherStore } from "@/src/stores/provider";
+import { useWeatherStore, useFavoritesStore } from "@/src/stores/provider";
 
-// ✅ Store calls Module
-import { fetchCurrentWeather } from "@/src/modules/weather";
+// ✅ Store depends on Service interface
+import { weatherClientService } from "@/src/services/weather.client.service";
 
-// ❌ Screen must NOT import from modules directly
+// ✅ Service calls API endpoint via apiClient
+import { apiClient } from "@/src/lib/axios";
+
+// ❌ Screen must NOT call apiClient or modules directly
 ```
 
-### Destructuring
+### Recommendations (Strategy Pattern)
 
-- Always destructure objects before use — avoid repeated `obj.prop.subprop`
-- Destructure API_ERRORS at top of file: `const { UNAUTHORIZED } = API_ERRORS;`
+Adding a new recommendation type requires **only a new file**:
+
+```typescript
+// src/modules/recommendations/strategies/packing.strategy.ts
+export class PackingStrategy implements IRecommendationStrategy {
+  recommend(input: RecommendationInput): Recommendation { ... }
+}
+// Then register in index.ts:
+engine.register("packing", new PackingStrategy());
+```
+
+### Loading / Error states
+
+Use shared components from `src/ui/states/`:
+
+```typescript
+import { LoadingState, ErrorState } from "@/src/ui/states";
+
+if (isLoading) return <LoadingState message="Loading weather…" />;
+if (error) return <ErrorState message={error} onRetry={retry} />;
+```
 
 ### Styling
 
 - Tailwind only — never hardcode hex colors in JSX
-- Glassmorphism helpers: `glass-card`, `glass-card-heavy`, `glass-card-sm` (in `globals.css`)
 - Design tokens in `tailwind.config.ts` (sourced from `DESIGN.md`)
+- Glassmorphism: `glass-card`, `glass-card-heavy`, `glass-card-sm` (in `globals.css`)
 
 ### State
 
 - MobX `flow()` for all async actions in Store
 - Screens use `observer()` from `mobx-react-lite`
-- No `useState` for server data — use Store
+- `runInAction()` when mutating observable inside `async` callback
 
 ---
 
 ## Key Modules
 
-### `src/modules/weather/`
-
-- `weather.api.ts` — `fetchCurrentWeather(city)`, `fetchForecast(city)` via Axios
-- `weather.mapper.ts` — maps OpenWeather response → `WeatherData` type, calculates dew point
-- `weather.utils.ts` — `groupForecastByDay()`, `calcDewPoint()`
-- `validation.ts` — Zod schemas for OpenWeather API responses
-
-### `src/modules/solar/`
-
-- `getSolarData(lat, lon, date, timezoneOffsetSeconds)` using `suncalc`
-- Returns `{ sunrise, sunset, daylightDuration, twilightDuration }` in local time
-
 ### `src/modules/recommendations/`
 
-- `getRecommendations(input)` → `{ outfit, activity, health }`
-- Rules: temp ranges, condition codes, UV index, humidity, wind speed
-- All text in `src/lib/messages.ts` → `RECOMMENDATION_MESSAGES`
+Strategy pattern via `RecommendationEngine`:
+
+- `recommendation.engine.ts` — register/run strategies
+- `recommendation.strategy.ts` — `IRecommendationStrategy` interface
+- `strategies/outfit.strategy.ts`, `activity.strategy.ts`, `health.strategy.ts`
+- `weather.predicates.ts` — shared `isRainy()`, `isStormy()`
+
+### `src/modules/weather/`
+
+- `weather.api.ts` — `fetchCurrentWeather()`, `fetchForecast()` via Axios
+- `weather.mapper.ts` — maps OpenWeather → `WeatherData`, calculates dew point
+- `weather.utils.ts` — `groupForecastByDay()`, `calcDewPoint()`
+- `validation.ts` — Zod schemas
 
 ### `src/lib/weather-cache.ts`
 
-- `getCachedCurrentWeather(city)` — 10-min cache via `unstable_cache`
-- `getCachedForecast(city)` — 10-min cache via `unstable_cache`
-- `getCacheHeaders(_fetchedAt)` — returns `X-Cache` / `X-Cache-Age` headers
+- `getCachedCurrentWeather(city)` — delegates to `weatherServerService`, 10-min TTL
+- `getCachedForecast(city)` — delegates to `weatherServerService`, 10-min TTL
+- `getCacheHeaders(_fetchedAt)` — `X-Cache: HIT/MISS`, `X-Cache-Age: Xs`
 
 ---
 
 ## Auth
 
 - **Provider:** Better Auth with Google OAuth
-- **Protected routes:** `/favorites` — checked in `app/favorites/page.tsx` via `auth.api.getSession()`
+- **Protected routes:** `/favorites` — `auth.api.getSession()` in the page Server Component
 - **Client:** `useSession()`, `signIn.social()`, `signOut()` from `src/lib/auth-client.ts`
-- Never check auth in `src/screens/` — only in page Server Components or Route Handlers
+- No middleware — auth checked directly in page Server Components
 
 ---
 
 ## Database (Prisma + PostgreSQL)
 
-Key models:
-
-- `User` — Better Auth user
-- `Session`, `Account`, `Verification` — Better Auth internals
-- `Favorite` — `city_name`, `userId`, `lat`, `lon`, `timezone`
-- `SearchHistory` — `search_term`, `userId` (optional)
+- `User`, `Session`, `Account`, `Verification` — Better Auth internals
+- `Favorite` — `city_name`, `userId`, `lat`, `lon`, `timezone`, `createdAt`
+- `SearchHistory` — `search_term`, `userId` (optional), `timestamp`
 
 ---
 
 ## Quality Checks
 
-Run before every commit:
-
 ```bash
 pnpm lint        # ESLint — zero warnings
 pnpm typecheck   # TypeScript strict
-pnpm test        # Vitest unit tests (16 tests)
+pnpm test        # Vitest (16 tests)
 pnpm format      # Prettier
 ```

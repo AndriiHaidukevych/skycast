@@ -3,10 +3,8 @@
 import { useEffect } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { getOpenWeatherTileUrl } from "@/src/lib/constants";
 import type { LayerId } from "./weather-map.constants";
-
-const OW_TILES = (layer: string) =>
-  `https://tile.openweathermap.org/map/${layer}/{z}/{x}/{y}.png?appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`;
 
 interface RecenterProps {
   lat: number;
@@ -45,7 +43,7 @@ export function WeatherMap({ lat, lon, activeLayer }: Props) {
 
       <TileLayer
         key={activeLayer}
-        url={OW_TILES(activeLayer)}
+        url={getOpenWeatherTileUrl(activeLayer)}
         opacity={0.6}
         attribution='&copy; <a href="https://openweathermap.org/">OpenWeather</a>'
       />

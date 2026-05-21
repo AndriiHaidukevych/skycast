@@ -6,7 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "@/src/lib/auth-client";
 import { SearchBar } from "@/src/ui/search-bar";
 import { HEADER_MESSAGES } from "./header.constants";
-import { useWeatherStore } from "@/src/stores/provider";
+import { useWeatherStore, useFavoritesStore } from "@/src/stores/provider";
 import type { GeocodingResult } from "@/src/types/geocoding";
 
 const { signedInAs, signOut: signOutLabel, signIn: signInLabel } = HEADER_MESSAGES;
@@ -20,10 +20,17 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
-  const store = useWeatherStore();
+  const weatherStore = useWeatherStore();
+  const favStore = useFavoritesStore();
+
+  // Load search history on mount
+  useEffect(() => {
+    favStore.loadSearchHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleCitySelect({ name }: GeocodingResult) {
-    store.fetchWeather(name);
+    weatherStore.fetchWeather(name);
     router.push("/");
   }
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -59,7 +66,12 @@ export function Header() {
 
       {/* Search bar with autocomplete */}
       <div className="flex-1 max-w-md hidden md:block">
-        <SearchBar placeholder="Search cities..." onSelect={handleCitySelect} />
+        <SearchBar
+          placeholder="Search cities..."
+          onSelect={handleCitySelect}
+          history={favStore.searchHistory}
+          onSaveSearch={(term) => favStore.saveSearch(term)}
+        />
       </div>
 
       {/* Spacer */}

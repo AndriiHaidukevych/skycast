@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useWeatherStore } from "@/src/stores/provider";
+import { useFavoritesStore } from "@/src/stores/provider";
+import { LoadingState } from "@/src/ui/states";
 import { CityCard, AddLocationCard, RegionFilter, DailyInsight } from "./components";
 import { FAVORITES_MESSAGES, getRegion } from "./favorites.constants";
 import type { RegionId } from "./favorites.constants";
@@ -11,14 +12,14 @@ const { title, subtitle, searchPlaceholder, loading, noFavorites, noFavoritesHin
   FAVORITES_MESSAGES;
 
 export const FavoritesScreen = observer(function FavoritesScreen() {
-  const store = useWeatherStore();
-  const { favorites, isLoadingFavorites } = store;
+  const favStore = useFavoritesStore();
+  const { favorites, isLoadingFavorites } = favStore;
   const [search, setSearch] = useState("");
   const [activeRegion, setActiveRegion] = useState<RegionId>("ALL");
 
   useEffect(() => {
-    store.loadFavorites();
-  }, [store]);
+    favStore.loadFavorites();
+  }, [favStore]);
 
   const filtered = favorites.filter((f) => {
     const matchesSearch =
@@ -55,15 +56,7 @@ export const FavoritesScreen = observer(function FavoritesScreen() {
         <RegionFilter active={activeRegion} onChange={setActiveRegion} />
       </div>
 
-      {/* Loading */}
-      {isLoadingFavorites && (
-        <div className="flex items-center gap-3 py-stack-lg">
-          <span className="material-symbols-outlined text-primary animate-spin">
-            progress_activity
-          </span>
-          <span className="font-body-md text-on-surface-variant">{loading}</span>
-        </div>
-      )}
+      {isLoadingFavorites && <LoadingState message={loading} fullPage={false} />}
 
       {/* Empty state */}
       {!isLoadingFavorites && favorites.length === 0 && (

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { useWeatherStore } from "@/src/stores/provider";
+import { useWeatherStore, useFavoritesStore } from "@/src/stores/provider";
 import {
   WeatherDetailCard,
   SolarCycleCard,
@@ -10,6 +10,7 @@ import {
   VisibilitySection,
 } from "./components";
 import { WeatherMapWidget } from "@/src/ui/weather-map";
+import { LoadingState, ErrorState } from "@/src/ui/states";
 import { DETAILS_MESSAGES } from "./details.constants";
 
 interface Props {
@@ -20,50 +21,37 @@ const { loading, notFound, tryAgain } = DETAILS_MESSAGES;
 
 export const DetailsScreen = observer(function DetailsScreen({ city }: Props) {
   const store = useWeatherStore();
+  const favStore = useFavoritesStore();
   const { currentWeather, recommendations, isLoading, error, currentCity } = store;
-  const isFav = store.isFavorite(city);
+  const isFav = favStore.isFavorite(city);
 
   useEffect(() => {
     if (currentCity !== city) {
       store.fetchWeather(city);
     }
-    store.loadFavorites();
-  }, [city, currentCity, store]);
+    favStore.loadFavorites();
+  }, [city, currentCity, store, favStore]);
 
   function handleToggleFavorite() {
     if (!currentWeather) return;
     if (isFav) {
-      const fav = store.favorites.find((f) => f.city_name.toLowerCase() === city.toLowerCase());
-      if (fav) store.removeFavorite(fav.id);
+      const fav = favStore.favorites.find((f) => f.city_name.toLowerCase() === city.toLowerCase());
+      if (fav) favStore.removeFavorite(fav.id);
     } else {
       const { city: cityName, country, lat, lon, timezone } = currentWeather;
-      store.addFavorite({ city_name: cityName, country, lat, lon, timezone });
+      favStore.addFavorite({ city_name: cityName, country, lat, lon, timezone });
     }
   }
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh] gap-3">
-        <span className="material-symbols-outlined text-primary animate-spin">
-          progress_activity
-        </span>
-        <span className="font-body-md text-on-surface-variant">{loading}</span>
-      </div>
-    );
-  }
+  if (isLoading) return <LoadingState message={loading} />;
 
   if (error || !currentWeather || !recommendations) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-stack-sm text-center px-container-padding-mobile">
-        <span className="material-symbols-outlined text-error text-[48px]">cloud_off</span>
-        <p className="font-headline-md text-headline-md text-error">{error ?? notFound}</p>
-        <button
-          onClick={() => store.fetchWeather(city)}
-          className="font-label-caps text-label-caps text-primary hover:underline"
-        >
-          {tryAgain}
-        </button>
-      </div>
+      <ErrorState
+        message={error ?? notFound}
+        onRetry={() => store.fetchWeather(city)}
+        retryLabel={tryAgain}
+      />
     );
   }
 
