@@ -35,6 +35,8 @@ export function Header() {
   }
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [menuOpenAt, setMenuOpenAt] = useState<string | null>(null);
+  const mobileMenuOpen = menuOpenAt === pathname;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -55,94 +57,138 @@ export function Header() {
   const firstName = session?.user.name?.split(" ")[0] ?? session?.user.email ?? "";
 
   return (
-    <header className="bg-surface/30 backdrop-blur-[24px] sticky top-0 z-50 border-b border-white/10 flex items-center gap-gutter w-full px-container-padding-desktop py-stack-sm">
-      {/* Logo */}
-      <Link
-        href="/"
-        className="font-display-temp text-headline-lg tracking-tight text-primary shrink-0"
-      >
-        SkyCast
-      </Link>
+    <header className="bg-surface/30 backdrop-blur-[24px] sticky top-0 z-50 border-b border-white/10 w-full">
+      {/* Main bar */}
+      <div className="flex items-center gap-gutter px-container-padding-desktop py-stack-sm">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="font-display-temp text-headline-lg tracking-tight text-primary shrink-0"
+        >
+          SkyCast
+        </Link>
 
-      {/* Search bar with autocomplete */}
-      <div className="flex-1 max-w-md hidden md:block">
-        <SearchBar
-          placeholder="Search cities..."
-          onSelect={handleCitySelect}
-          history={favStore.searchHistory}
-          onSaveSearch={(term) => favStore.saveSearch(term)}
-        />
+        {/* Search bar — desktop only */}
+        <div className="flex-1 max-w-md hidden md:block">
+          <SearchBar
+            placeholder="Search cities..."
+            onSelect={handleCitySelect}
+            history={favStore.searchHistory}
+            onSaveSearch={(term) => favStore.saveSearch(term)}
+          />
+        </div>
+
+        {/* Spacer */}
+        <div className="flex-1" />
+
+        {/* Nav links — desktop only */}
+        <nav className="hidden md:flex items-center gap-1">
+          {NAV_LINKS.map(({ label, href }) => {
+            const isActive = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`font-label-caps text-label-caps px-4 py-2 rounded-full transition-colors whitespace-nowrap ${
+                  isActive
+                    ? "text-primary bg-primary/10 border border-primary/30"
+                    : "text-on-surface-variant hover:bg-white/5"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Auth */}
+        {session ? (
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen((prev) => !prev)}
+              className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-white/5 transition-colors"
+            >
+              <span className="material-symbols-outlined text-primary text-[20px]">
+                account_circle
+              </span>
+              <span className="font-label-caps text-label-caps text-on-surface-variant hidden md:inline">
+                Hi, {firstName}
+              </span>
+              <span className="material-symbols-outlined text-on-surface-variant text-[16px]">
+                {dropdownOpen ? "expand_less" : "expand_more"}
+              </span>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 top-full mt-4 w-64 bg-surface-container-high border border-white/10 rounded-xl overflow-hidden z-50 shadow-xl">
+                <div className="px-4 py-3 border-b border-white/10">
+                  <p className="font-label-caps text-label-caps text-on-surface-variant">
+                    {signedInAs}
+                  </p>
+                  <p className="font-body-md text-on-surface truncate text-sm mt-0.5">
+                    {session.user.email}
+                  </p>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-2 px-4 py-3 font-label-caps text-label-caps text-error hover:bg-white/5 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                  {signOutLabel}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="flex items-center gap-2 bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors px-4 py-2 rounded-full font-label-caps text-label-caps text-primary whitespace-nowrap"
+          >
+            <span className="material-symbols-outlined text-[16px]">account_circle</span>
+            {signInLabel}
+          </Link>
+        )}
+
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={() => setMenuOpenAt((prev) => (prev === pathname ? null : pathname))}
+          className="md:hidden flex items-center justify-center p-2 rounded-full hover:bg-white/5 transition-colors"
+          aria-label="Toggle menu"
+        >
+          <span className="material-symbols-outlined text-on-surface-variant text-[24px]">
+            {mobileMenuOpen ? "close" : "menu"}
+          </span>
+        </button>
       </div>
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Nav links */}
-      <nav className="hidden md:flex items-center gap-1">
-        {NAV_LINKS.map(({ label, href }) => {
-          const isActive = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`font-label-caps text-label-caps px-4 py-2 rounded-full transition-colors whitespace-nowrap ${
-                isActive
-                  ? "text-primary bg-primary/10 border border-primary/30"
-                  : "text-on-surface-variant hover:bg-white/5"
-              }`}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Auth */}
-      {session ? (
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-white/5 transition-colors"
-          >
-            <span className="material-symbols-outlined text-primary text-[20px]">
-              account_circle
-            </span>
-            <span className="font-label-caps text-label-caps text-on-surface-variant hidden md:inline">
-              Hi, {firstName}
-            </span>
-            <span className="material-symbols-outlined text-on-surface-variant text-[16px]">
-              {dropdownOpen ? "expand_less" : "expand_more"}
-            </span>
-          </button>
-
-          {dropdownOpen && (
-            <div className="absolute right-0 top-full mt-4 w-64 bg-surface-container-high border border-white/10 rounded-xl overflow-hidden z-50 shadow-xl">
-              <div className="px-4 py-3 border-b border-white/10">
-                <p className="font-label-caps text-label-caps text-on-surface-variant">
-                  {signedInAs}
-                </p>
-                <p className="font-body-md text-on-surface truncate text-sm mt-0.5">
-                  {session.user.email}
-                </p>
-              </div>
-              <button
-                onClick={handleSignOut}
-                className="w-full flex items-center gap-2 px-4 py-3 font-label-caps text-label-caps text-error hover:bg-white/5 transition-colors text-left"
-              >
-                <span className="material-symbols-outlined text-[18px]">logout</span>
-                {signOutLabel}
-              </button>
-            </div>
-          )}
+      {/* Mobile menu panel */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-white/10 px-container-padding-desktop py-stack-sm space-y-stack-sm">
+          <SearchBar
+            placeholder="Search cities..."
+            onSelect={handleCitySelect}
+            history={favStore.searchHistory}
+            onSaveSearch={(term) => favStore.saveSearch(term)}
+          />
+          <nav className="flex flex-col gap-1">
+            {NAV_LINKS.map(({ label, href }) => {
+              const isActive = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`font-label-caps text-label-caps px-4 py-2 rounded-full transition-colors ${
+                    isActive
+                      ? "text-primary bg-primary/10 border border-primary/30"
+                      : "text-on-surface-variant hover:bg-white/5"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
-      ) : (
-        <Link
-          href="/login"
-          className="flex items-center gap-2 bg-primary/10 border border-primary/30 hover:bg-primary/20 transition-colors px-4 py-2 rounded-full font-label-caps text-label-caps text-primary whitespace-nowrap"
-        >
-          <span className="material-symbols-outlined text-[16px]">account_circle</span>
-          {signInLabel}
-        </Link>
       )}
     </header>
   );

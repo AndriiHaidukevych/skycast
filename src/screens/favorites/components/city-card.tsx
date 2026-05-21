@@ -32,7 +32,10 @@ export const CityCard = observer(function CityCard({ city }: Props) {
         className="absolute top-3 right-3 z-10 text-secondary hover:text-error transition-colors"
         title="Remove from favorites"
       >
-        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+        <span
+          className="material-symbols-outlined text-[28px]"
+          style={{ fontVariationSettings: "'FILL' 1" }}
+        >
           star
         </span>
       </button>

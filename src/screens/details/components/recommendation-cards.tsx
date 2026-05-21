@@ -19,7 +19,7 @@ export function RecommendationCards({ recommendations }: Props) {
 
   return (
     <section className="space-y-stack-sm">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
         <h2 className="font-headline-lg text-headline-lg">{recommendationsTitle}</h2>
         <span className="bg-secondary-container/20 text-secondary font-label-caps text-label-caps px-4 py-1 rounded-full border border-secondary/30">
           {latestAnalysis}
@@ -27,10 +27,7 @@ export function RecommendationCards({ recommendations }: Props) {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
         {cards.map(({ data: { icon, title, description }, label, colorClass }) => (
-          <div
-            key={label}
-            className="glass-card rounded-xl p-stack-md hover:bg-white/10 transition-all"
-          >
+          <div key={label} className="glass-card rounded-xl p-stack-md">
             <div className="flex items-start justify-between mb-stack-sm">
               <span className={`material-symbols-outlined ${colorClass} text-4xl`}>{icon}</span>
               <span className="font-label-caps text-label-caps text-on-surface-variant">
