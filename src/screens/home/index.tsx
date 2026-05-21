@@ -16,7 +16,7 @@ export const HomeScreen = observer(function HomeScreen({ initialCity }: Props) {
   const store = useWeatherStore();
   const router = useRouter();
   const { currentWeather, recommendations, forecast, isLoading, error, currentCity } = store;
-  const { loadingWeather, tryAgain } = HOME_MESSAGES;
+  const { loadingWeather, tryAgain, backToSearch } = HOME_MESSAGES;
 
   useEffect(() => {
     if (initialCity && initialCity !== currentCity) {
@@ -48,7 +48,7 @@ export const HomeScreen = observer(function HomeScreen({ initialCity }: Props) {
           className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps transition-colors"
         >
           <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-          Back to search
+          {backToSearch}
         </button>
         <CurrentWeatherCard weather={currentWeather} recommendations={recommendations} />
         <StatsGrid weather={currentWeather} />
