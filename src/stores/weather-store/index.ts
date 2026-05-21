@@ -27,6 +27,14 @@ class WeatherStore {
     this.error = null;
   }
 
+  reset() {
+    this.currentWeather = null;
+    this.recommendations = null;
+    this.forecast = [];
+    this.currentCity = null;
+    this.error = null;
+  }
+
   *fetchWeather(city: string) {
     this.isLoading = true;
     this.error = null;
