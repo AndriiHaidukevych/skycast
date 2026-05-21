@@ -19,10 +19,7 @@ export function AddLocationCard() {
   if (isOpen) {
     return (
       <div className="border-2 border-dashed border-primary/40 p-6 rounded-xl flex flex-col gap-3 justify-center h-64 bg-white/2">
-        <SearchBar
-          placeholder={addSearchPlaceholder}
-          onSelect={handleSelect}
-        />
+        <SearchBar placeholder={addSearchPlaceholder} onSelect={handleSelect} />
         <button
           type="button"
           onClick={() => setIsOpen(false)}
